@@ -9,21 +9,26 @@
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.min.js' integrity='sha512-deBbW1lpMT6h3gvOzmeMPft4pf9CMGjCKc5jSNq2pMSjtkMPuELbd4N3LKXVq/t1t6qco4q3u/XguyqGqlOMjA==' crossorigin='anonymous'></script>
 
 	<style>
-
 		.panel {
 			position: fixed;
-			box-sizing: border-box;
 			top: 0;
-			left: -15.9rem;
+			left: -16rem;
 			font-family: Verdana, Geneva, Tahoma, sans-serif;
 			background-color: #fafafa;
-			padding: 0.5rem;
-			min-height: 100vh;
+			height: 100vh;
 			width: 16rem;
 			font-size: 1rem;
 			transition-property: left;
 			transition-duration: 0.5s;
+		}
+
+		.panel .scroll {
+			box-sizing: border-box;
+			padding: 0.5rem;
 			overflow-y: scroll;
+			overflow-x: hidden;
+			width: 100%;
+			height: 100%;
 		}
 
 		.panel a {
@@ -70,7 +75,9 @@
 			margin-right: 0.2rem;
 		}
 
-		button, select, input {
+		button,
+		select,
+		input {
 			font-size: 1em;
 			width: 100%;
 		}
@@ -112,7 +119,7 @@
 		.title p {
 			font-size: 2em;
 		}
-		
+
 		.title p+p {
 			font-size: 1.5em;
 		}
@@ -131,13 +138,35 @@
 			padding-left: 1em;
 			margin: 1em 0;
 		}
+
+		.scroll::-webkit-scrollbar {
+			width: 0.4rem;
+		}
+
+		.scroll::-webkit-scrollbar-track {
+			background: #eee;
+		}
+
+		.scroll::-webkit-scrollbar-thumb {
+			background-color: #ccc; 
+			border-radius: 20px;
+		}
+
+		body::-webkit-scrollbar {
+			width: 0.4rem;
+		}
+
+		body::-webkit-scrollbar-thumb { 
+			border-radius: 20px;
+		}
 	</style>
 </head>
 
 <body>
-		<div id="app">
-			<div class="book" :style="style">
-				<div class="panel">
+	<div id="app">
+		<div class="book" :style="style">
+			<div class="panel">
+				<div class="scroll">
 					<div class="group">
 						<button class="btn" @click="open">Открыть</button>
 					</div>
@@ -148,7 +177,7 @@
 						<div>{{book.author.firstName}} {{book.author.lastName}}</div>
 						<div><b>{{book.title}}</b></div>
 					</div>
-					
+
 					<div class="group">
 						<label><span>Текст:</span><input type="color" v-model="options.color"></label>
 						<label><span>Фон:</span><input type="color" v-model="options.background"></label>
@@ -160,34 +189,35 @@
 					</div>
 					<div class="group">
 						<label><span>Шрифт:</span>
-						<select v-model="options.fontFamily">
-							<option value="Verdana">Verdana</option>
-							<option value="Georgia">Georgia</option>
-							<option value="Times">Tlmes</option>
-						</select>
+							<select v-model="options.fontFamily">
+								<option value="Verdana">Verdana</option>
+								<option value="Georgia">Georgia</option>
+								<option value="Times">Tlmes</option>
+							</select>
 						</label>
 						<label><span>Размер:</span>
-						<select v-model.number="options.fontSize">
-							<option value="12">12</option>
-							<option value="14">14</option>
-							<option value="16">16</option>
-							<option value="18">18</option>
-							<option value="24">24</option>
-						</select>
+							<select v-model.number="options.fontSize">
+								<option value="12">12</option>
+								<option value="14">14</option>
+								<option value="16">16</option>
+								<option value="18">18</option>
+								<option value="24">24</option>
+							</select>
 						</label>
 					</div>
 				</div>
-				<div v-html="book.html" class="page"></div>
-				<div v-html="moreStyles"></div>
 			</div>
+			<div v-html="book.html" class="page"></div>
+			<div v-html="moreStyles"></div>
 		</div>
+	</div>
 
 	<script>
 		var app = new Vue({
 			el: "#app",
 			data: {
 				xml: null,
-				book : {
+				book: {
 					title: "",
 					author: {},
 					cover: "",
@@ -245,20 +275,21 @@
 				parse(buffer) {
 					let decoder = new TextDecoder();
 					let parser = new DOMParser();
-					let xml = null, text = "";
+					let xml = null,
+						text = "";
 					try {
 						text = decoder.decode(buffer);
-						xml = parser.parseFromString(text,"text/xml");
+						xml = parser.parseFromString(text, "text/xml");
 						if (xml.xmlEncoding != 'utf-8') {
 							decoder = new TextDecoder(xml.xmlEncoding);
 							text = decoder.decode(buffer);
-							xml = parser.parseFromString(text,"text/xml");
+							xml = parser.parseFromString(text, "text/xml");
 						}
 					} catch {
 						alert("Книга повреждена или не поддерживается!");
 						return;
 					}
-					if (xml.getElementsByTagName("FictionBook").length==0) {
+					if (xml.getElementsByTagName("FictionBook").length == 0) {
 						alert("Формат книги не поддерживается!");
 						return;
 					}
@@ -282,12 +313,12 @@
 					}
 
 					this.book.cover = "";
-					
+
 					let coverpage = xml.getElementsByTagName("coverpage")[0];
 					if (coverpage) {
 						let cover = coverpage.getElementsByTagName("image")[0];
 						if (cover) {
-							let id = cover.getAttribute("l:href").replace(/#/g,'');
+							let id = cover.getAttribute("l:href").replace(/#/g, '');
 							let binary = xml.getElementById(id);
 							let type = binary.getAttribute("content-type");
 							let base64 = binary.childNodes[0].nodeValue;
@@ -314,72 +345,100 @@
 
 						let that = this;
 						let tags = {
-							body : {
-								start(node){ return "<div class='body'>"},
+							body: {
+								start(node) {
+									return "<div class='body'>"
+								},
 								end: "</div>"
 							},
 							section: {
 								start(node) {
 									let id = node.getAttribute("id");
-									return id!=undefined ? `<section id='${id}'>` : "<section>";
+									return id != undefined ? `<section id='${id}'>` : "<section>";
 								},
 								end: "</section>"
 							},
 							p: {
-								start(node){ return  "<p>"},
+								start(node) {
+									return "<p>"
+								},
 								end: "</p>"
 							},
 							title: {
-								start(node){ return "<div class='title'>"},
+								start(node) {
+									return "<div class='title'>"
+								},
 								end: "</div>"
 							},
 							subtitle: {
-								start(node){ return  "<div class='subtitle'>"},
+								start(node) {
+									return "<div class='subtitle'>"
+								},
 								end: "</div>"
 							},
-							"empty-line" : {
-								start(node){ return  "<div class='line'>"},
+							"empty-line": {
+								start(node) {
+									return "<div class='line'>"
+								},
 								end: "</div>"
 							},
 							emphasis: {
-								start(node){ return  "<em>"},
+								start(node) {
+									return "<em>"
+								},
 								end: "</em>"
 							},
 							strong: {
-								start(node){ return  "<b>"},
+								start(node) {
+									return "<b>"
+								},
 								end: "</b>"
 							},
 							epigraph: {
-								start(node){ return  "<div class='epigraph'>"},
+								start(node) {
+									return "<div class='epigraph'>"
+								},
 								end: "</div>"
 							},
 							cite: {
-								start(node){ return "<blockquote>"},
+								start(node) {
+									return "<blockquote>"
+								},
 								end: "</blockquote>"
 							},
 							"text-author": {
-								start(node){ return "<cite>"},
+								start(node) {
+									return "<cite>"
+								},
 								end: "</cite>"
 							},
 							date: {
-								start(node){ return "<date>"},
+								start(node) {
+									return "<date>"
+								},
 								end: "</date>"
 							},
 							poem: {
-								start(node){ return "<div class='poem'>"},
+								start(node) {
+									return "<div class='poem'>"
+								},
 								end: "</div>"
 							},
 							stanza: {
-								start(node){ return "<div class='stanza'>"},
+								start(node) {
+									return "<div class='stanza'>"
+								},
 								end: "</div>"
 							},
 							v: {
-								start(node){ return "<p>"},
+								start(node) {
+									return "<p>"
+								},
 								end: "</p>"
 							},
-							image : {
+							image: {
 								start(node) {
-									let id = node.getAttribute("l:href").replace(/#/g,'');
+									let id = node.getAttribute("l:href").replace(/#/g, '');
 									let binary = that.xml.getElementById(id);
 									let type = binary.getAttribute("content-type");
 									let base64 = binary.childNodes[0].nodeValue;
@@ -409,17 +468,17 @@
 
 							output += tags[node.nodeName].start(node);
 							let end = tags[node.nodeName].end;
-							
+
 							if (end != "") {
 								for (let childNode of node.childNodes) {
-									output+= this.parseNode(childNode);
+									output += this.parseNode(childNode);
 								}
 								output += end;
 							}
 						}
 
 					} else if (node.nodeType == 3) {
-						output+= node.nodeValue;
+						output += node.nodeValue;
 					}
 
 					return output;
@@ -430,20 +489,23 @@
 					this.options.background = theme.background;
 					this.options.links = theme.links;
 				},
-				hashCode (s){
-  					return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+				hashCode(s) {
+					return s.split("").reduce(function(a, b) {
+						a = ((a << 5) - a) + b.charCodeAt(0);
+						return a & a
+					}, 0);
 				},
 				restoreProgress() {
 					if (localStorage["fb2Reader_scroll" + this.book.hash]) {
-					let i = localStorage.getItem("fb2Reader_scroll" + this.book.hash);
-					this.$nextTick(function () {
-						setTimeout(()=>{
-							let p = document.getElementsByTagName('p');
-							if (p.length>i) {
-								let scroll = p[i].offsetTop;
-								window.scrollTo(0,scroll);
-							}
-						}, 500);
+						let i = localStorage.getItem("fb2Reader_scroll" + this.book.hash);
+						this.$nextTick(function() {
+							setTimeout(() => {
+								let p = document.getElementsByTagName('p');
+								if (p.length > i) {
+									let scroll = p[i].offsetTop;
+									window.scrollTo(0, scroll);
+								}
+							}, 500);
 						});
 					}
 				}
@@ -451,7 +513,7 @@
 			computed: {
 				style() {
 					return {
-						fontSize : this.options.fontSize + "px",
+						fontSize: this.options.fontSize + "px",
 						fontFamily: this.options.fontFamily,
 						color: this.options.color,
 						background: this.options.background
@@ -470,6 +532,14 @@
 						blockquote {
 							border-left: 0.4em solid ${this.options.color};
 						}
+
+						body::-webkit-scrollbar-track {
+							background: ${this.options.background};
+						}
+
+						body::-webkit-scrollbar-thumb {
+							background-color: ${this.options.color}; 
+						}
 						</style>`;
 				}
 			}
@@ -478,13 +548,14 @@
 		window.addEventListener('scroll', function(e) {
 			console.log(app.book.hash);
 			let p = document.getElementsByTagName('p');
-			let wt  = window.pageYOffset || document.documentElement.scrollTop;
+			let wt = window.pageYOffset || document.documentElement.scrollTop;
 			for (var i = 0; i < p.length; i++) {
-				let bt = p[i].offsetTop, bb = bt+p[i].offsetHeight;
-  				if (bt < wt && bb >= wt) {
-  					localStorage.setItem("fb2Reader_scroll" + app.book.hash, i);
-  					return true;
-  				}
+				let bt = p[i].offsetTop,
+					bb = bt + p[i].offsetHeight;
+				if (bt < wt && bb >= wt) {
+					localStorage.setItem("fb2Reader_scroll" + app.book.hash, i);
+					return true;
+				}
 			}
 		});
 	</script>
