@@ -296,33 +296,32 @@
 
 					this.xml = xml;
 
-					let title = xml.getElementsByTagName("book-title")[0].childNodes[0].nodeValue;
+					let title = this.nodeText(xml.getElementsByTagName("book-title")[0]);
 
 					this.book.title = title;
 					this.book.hash = this.hashCode(title);
 
 					let author = xml.getElementsByTagName("author")[0];
-					if (author) {
-						let fn = author.getElementsByTagName("first-name")[0];
-						let ln = author.getElementsByTagName("first-name")[0];
-						let nn = author.getElementsByTagName("nick-name")[0];
-
-						this.book.author.firstName = fn ? fn.childNodes[0].nodeValue : "";
-						this.book.author.lastName = ln ? ln.childNodes[0].nodeValue : "";
-						this.book.author.nickName = nn ? nn.childNodes[0].nodeValue : "";
+					if (author != null) {
+						this.book.author.firstName = this.nodeText(author.getElementsByTagName("first-name")[0]);
+						this.book.author.lastName = this.nodeText(author.getElementsByTagName("last-name")[0]);
+						this.book.author.nickName = this.nodeText(author.getElementsByTagName("nick-name")[0]);
 					}
 
 					this.book.cover = "";
 
 					let coverpage = xml.getElementsByTagName("coverpage")[0];
-					if (coverpage) {
+					if (coverpage !=null) {
 						let cover = coverpage.getElementsByTagName("image")[0];
-						if (cover) {
-							let id = cover.getAttribute("l:href").replace(/#/g, '');
+						if (cover != null) {
+							let id = cover.getAttribute("l:href") || cover.getAttribute("xlink:href");
+							id = id.replace(/#/g, '');
 							let binary = xml.getElementById(id);
-							let type = binary.getAttribute("content-type");
-							let base64 = binary.childNodes[0].nodeValue;
-							this.book.cover = `data:${type};base64, ${base64}`;
+							if (binary != null) {
+								let type = binary.getAttribute("content-type");
+								let base64 = binary.childNodes[0].nodeValue;
+								this.book.cover = `data:${type};base64, ${base64}`;
+							}
 						}
 					}
 
@@ -438,17 +437,23 @@
 							},
 							image: {
 								start(node) {
-									let id = node.getAttribute("l:href").replace(/#/g, '');
+
+									let id = node.getAttribute("l:href") || node.getAttribute("xlink:href");
+									id = id.replace(/#/g, '');
 									let binary = that.xml.getElementById(id);
-									let type = binary.getAttribute("content-type");
-									let base64 = binary.childNodes[0].nodeValue;
-									return `<img src="data:${type};base64, ${base64}">`
+									if (binary != null) {
+										let type = binary.getAttribute("content-type");
+										let base64 = binary.childNodes[0].nodeValue;
+										return `<img src="data:${type};base64,${base64}">`
+									} else {
+										return "";
+									}
 								},
 								end: ""
 							},
 							a: {
 								start(node) {
-									let href = node.getAttribute("l:href");
+									let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 									let text = node.childNodes[0].nodeValue;
 									return `<a href='${href}'>${text}</a>`
 								},
@@ -456,7 +461,7 @@
 							},
 							link: {
 								start(node) {
-									let href = node.getAttribute("l:href");
+									let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 									let text = node.childNodes[0].nodeValue;
 									return `<a href='${href}'>${text}</a>`
 								},
@@ -507,6 +512,13 @@
 								}
 							}, 500);
 						});
+					}
+				},
+				nodeText(node) {
+					if (node != null && node != undefined && node.childNodes.length>0) {
+						return node.childNodes[0].nodeValue;
+					} else {
+						return "";
 					}
 				}
 			},
