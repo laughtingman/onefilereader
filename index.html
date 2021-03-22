@@ -167,9 +167,23 @@
 			height: 30vh;
 			left: 0;
 			right: 0;
-			bottom: 0;
+			bottom: -31vh;
 			overflow-y: scroll;
 			margin: 0 auto;
+			transition-property: bottom;
+			transition-duration: 0.5s;
+		}
+
+		.notes.show {
+			bottom: 0;
+		}
+
+		.notes .title {
+			margin: 1em 0;
+		}
+
+		.notes .title p {
+			font-size: 1em;
 		}
 	</style>
 </head>
@@ -220,7 +234,7 @@
 				</div>
 			</div>
 			<div v-html="book.main" class="page"></div>
-			<div v-html="book.notes" class="notes" v-show="showNotes"></div>
+			<div v-html="book.notes" class="notes" :class="{show:showNotes}"></div>
 			<div v-html="moreStyles"></div>
 		</div>
 	</div>
