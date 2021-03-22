@@ -1,6 +1,8 @@
 # onefilereader
 Extreamly light FB2 reader in one file
 
+[Demo here](https://laughtingman.github.io/onefilereader/index.html)
+
 ## Features
 1. Open `.fb2` book files
 2. Detect correct encoding
