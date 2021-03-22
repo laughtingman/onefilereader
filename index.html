@@ -153,12 +153,23 @@
 			border-radius: 20px;
 		}
 
-		body::-webkit-scrollbar {
+		body::-webkit-scrollbar, .notes::-webkit-scrollbar {
 			width: 0.4rem;
 		}
 
-		body::-webkit-scrollbar-thumb { 
+		body::-webkit-scrollbar-thumb, .notes::-webkit-scrollbar-thumb { 
 			border-radius: 20px;
+		}
+
+		.notes {
+			position: fixed;
+			max-width: 40em;
+			height: 30vh;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			overflow-y: scroll;
+			margin: 0 auto;
 		}
 	</style>
 </head>
@@ -208,7 +219,8 @@
 					</div>
 				</div>
 			</div>
-			<div v-html="book.html" class="page"></div>
+			<div v-html="book.main" class="page"></div>
+			<div v-html="book.notes" class="notes" v-show="showNotes"></div>
 			<div v-html="moreStyles"></div>
 		</div>
 	</div>
@@ -218,11 +230,13 @@
 			el: "#app",
 			data: {
 				xml: null,
+				showNotes: false,
 				book: {
 					title: "",
 					author: {},
 					cover: "",
-					html: "",
+					main: "",
+					notes: "",
 					hash: ""
 				},
 				options: {
@@ -348,7 +362,16 @@
 						output += this.parseNode(body);
 					}
 
-					this.book.html = output;
+					this.book.main = "";
+					this.book.notes = "";
+
+					for (let i=0; i<bodys.length; i++) {
+						if (i==0) {
+							this.book.main = this.parseNode(bodys[i]);
+						} else {
+							this.book.notes += this.parseNode(bodys[i]);
+						}
+					}
 
 					localStorage.setItem("fb2Reader_book", JSON.stringify(this.book));
 					this.restoreProgress();
@@ -552,7 +575,7 @@
 						a {
 							color: ${this.options.links}
 						}
-						.page *::selection {
+						.page *::selection, .notes *::selection {
 							background-color: ${this.options.color};
 							color: ${this.options.background};
 						}
@@ -561,12 +584,17 @@
 							border-left: 0.4em solid ${this.options.color};
 						}
 
-						body::-webkit-scrollbar-track {
+						body::-webkit-scrollbar-track, .notes::-webkit-scrollbar-track {
 							background: ${this.options.background};
 						}
 
-						body::-webkit-scrollbar-thumb {
+						body::-webkit-scrollbar-thumb, .notes::-webkit-scrollbar-thumb {
 							background-color: ${this.options.color}; 
+						}
+
+						.notes {
+							border-top: 1px solid ${this.options.color};
+							background-color: ${this.options.background};
 						}
 						</style>`;
 				}
@@ -574,6 +602,8 @@
 		});
 
 		window.addEventListener('scroll', function(e) {
+			app.showNotes = false;
+			history.pushState(null, null, ' ');
 			let p = document.getElementsByTagName('p');
 			let wt = window.pageYOffset || document.documentElement.scrollTop;
 			for (var i = 0; i < p.length; i++) {
@@ -584,6 +614,10 @@
 					return true;
 				}
 			}
+		});
+
+		window.addEventListener("hashchange", function(){
+			app.showNotes = true;
 		});
 	</script>
 </body>
