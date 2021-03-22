@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>FB2 reader</title>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.min.js' integrity='sha512-deBbW1lpMT6h3gvOzmeMPft4pf9CMGjCKc5jSNq2pMSjtkMPuELbd4N3LKXVq/t1t6qco4q3u/XguyqGqlOMjA==' crossorigin='anonymous'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js' integrity='sha512-y3o0Z5TJF1UsKjs/jS2CDkeHN538bWsftxO9nctODL5W40nyXIbs0Pgyu7//icrQY9m6475gLaVr39i/uh/nLA==' crossorigin='anonymous'></script>
 
 	<style>
 		.panel {
@@ -254,17 +255,32 @@
 					}
 					let that = this;
 					let div = document.createElement('div');
-					div.innerHTML = '<input type="file" accept=".fb2">';
+					div.innerHTML = '<input type="file" accept=".fb2,.fb2.zip">';
 					let fileInput = div.firstChild;
 					fileInput.addEventListener('change', function() {
 						let file = fileInput.files[0];
 						if (file.name.match(/\.(fb2)$/)) {
+							
 							let reader = new FileReader();
 							reader.onload = function() {
 								that.parse(reader.result);
 								div.remove();
 							}
 							reader.readAsArrayBuffer(file);
+
+						} else if (file.name.match(/\.fb2\.zip$/)) {
+
+							JSZip.loadAsync(file).then(function(zip) {
+
+								let file = zip.file(/\.fb2$/);
+								if (file[0] != undefined) {
+									file[0].async("arraybuffer").then(function (result) {
+											that.parse(result);
+										});
+								} else {
+									alert("File not supported!");
+								}
+							});
 						} else {
 							error();
 							div.remove();
@@ -558,7 +574,6 @@
 		});
 
 		window.addEventListener('scroll', function(e) {
-			console.log(app.book.hash);
 			let p = document.getElementsByTagName('p');
 			let wt = window.pageYOffset || document.documentElement.scrollTop;
 			for (var i = 0; i < p.length; i++) {
