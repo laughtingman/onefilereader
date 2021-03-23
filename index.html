@@ -155,11 +155,11 @@
 			border-radius: 20px;
 		}
 
-		body::-webkit-scrollbar, .notes::-webkit-scrollbar {
+		body::-webkit-scrollbar, .notes .scroll::-webkit-scrollbar {
 			width: 0.4rem;
 		}
 
-		body::-webkit-scrollbar-thumb, .notes::-webkit-scrollbar-thumb { 
+		body::-webkit-scrollbar-thumb, .notes .scroll::-webkit-scrollbar-thumb { 
 			border-radius: 20px;
 		}
 
@@ -170,10 +170,14 @@
 			left: 0;
 			right: 0;
 			bottom: -31vh;
-			overflow-y: scroll;
 			margin: 0 auto;
 			transition-property: bottom;
 			transition-duration: 0.5s;
+		}
+
+		.notes .scroll {
+			height: 100%;
+			overflow-y: scroll;
 		}
 
 		.notes.show {
@@ -184,8 +188,24 @@
 			margin: 1em 0;
 		}
 
+		.notes p {
+			font-size: 0.8em;
+		}
+
 		.notes .title p {
 			font-size: 1em;
+		}
+
+		.notes .close {
+			border: 0;
+			background-color: transparent;
+			outline: none;
+			color: currentColor;
+			position: absolute;
+			right: 0.4rem;
+			top:0;
+			width: 2rem;
+			cursor: pointer;
 		}
 	</style>
 </head>
@@ -236,7 +256,10 @@
 				</div>
 			</div>
 			<div v-html="book.main" class="page"></div>
-			<div v-html="book.notes" class="notes" :class="{show:showNotes}"></div>
+			<div class="notes" :class="{show:showNotes}">
+				<button class="close" @click="hideNotes">&times;</button>
+				<div v-html="book.notes" class="scroll"></div>
+			</div>
 			<div v-html="moreStyles"></div>
 		</div>
 	</div>
@@ -581,6 +604,10 @@
 					} else {
 						return "";
 					}
+				},
+				hideNotes() {
+					this.showNotes = false;
+					history.pushState(null, null, ' ');
 				}
 			},
 			computed: {
@@ -606,11 +633,11 @@
 							border-left: 0.4em solid ${this.options.color};
 						}
 
-						body::-webkit-scrollbar-track, .notes::-webkit-scrollbar-track {
+						body::-webkit-scrollbar-track, .notes .scroll::-webkit-scrollbar-track {
 							background: ${this.options.background};
 						}
 
-						body::-webkit-scrollbar-thumb, .notes::-webkit-scrollbar-thumb {
+						body::-webkit-scrollbar-thumb, .notes .scroll::-webkit-scrollbar-thumb {
 							background-color: ${this.options.color}; 
 						}
 
@@ -624,8 +651,7 @@
 		});
 
 		window.addEventListener('scroll', function(e) {
-			app.showNotes = false;
-			history.pushState(null, null, ' ');
+			app.hideNotes();
 			let p = document.getElementsByTagName('p');
 			let wt = window.pageYOffset || document.documentElement.scrollTop;
 			for (var i = 0; i < p.length; i++) {
