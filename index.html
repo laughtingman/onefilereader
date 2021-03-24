@@ -105,6 +105,7 @@
 			line-height: 1.5em;
 			margin: 1em 0;
 			text-align: justify;
+			text-indent: 2em;
 		}
 
 		img {
@@ -121,6 +122,8 @@
 
 		.title p {
 			font-size: 2em;
+			text-indent: 0;
+			text-align: left;
 		}
 
 		.title p+p {
@@ -207,6 +210,10 @@
 			width: 2rem;
 			cursor: pointer;
 		}
+
+		.notes .body {
+			padding-right: 0.2em;
+		}
 	</style>
 </head>
 
@@ -216,7 +223,7 @@
 			<div class="panel">
 				<div class="scroll">
 					<div class="group">
-						<button class="btn" @click="open">Открыть</button>
+						<button class="btn" @click="open">{{lang("open")}}</button>
 					</div>
 					<div class="group">
 						<img :src="book.cover">
@@ -225,25 +232,30 @@
 						<div>{{book.author.firstName}} {{book.author.lastName}}</div>
 						<div><b>{{book.title}}</b></div>
 					</div>
-
 					<div class="group">
-						<label><span>Текст:</span><input type="color" v-model="options.color"></label>
-						<label><span>Фон:</span><input type="color" v-model="options.background"></label>
-						<label><span>Ссылки:</span><input type="color" v-model="options.links"></label>
+						<label><span>{{lang("theme")}}:</span>
+							<select @change="theme" v-model="options.theme">
+								<option value="#000000/#FFFFFF/#00AAFF">Black on white</option>
+								<option value="#CCCCCC/#000000/#00AAFF">Grey on black</option>
+								<option value="#5bae67/#000000/#8cae5b">Green on black</option>
+								<option value="custom">Custom</option>
+							</select>
+						</label>
+					</div>
+					<div class="group" v-if="options.theme=='custom'">
+						<label><span>{{lang("text")}}:</span><input type="color" v-model="options.color"></label>
+						<label><span>{{lang("background")}}:</span><input type="color" v-model="options.background"></label>
+						<label><span>{{lang("links")}}:</span><input type="color" v-model="options.links"></label>
 					</div>
 					<div class="group">
-						<a href="#" data-color="#000000" data-background="#FFFFFF" data-links="#00AAFF" @click.prevent="theme">Черный на белом</a>
-						<a href="#" data-color="#5bae67" data-background="#111111" data-links="#8cae5b" @click.prevent="theme">Зелёный на сером</a>
-					</div>
-					<div class="group">
-						<label><span>Шрифт:</span>
+						<label><span>{{lang("font")}}:</span>
 							<select v-model="options.fontFamily">
 								<option value="Verdana">Verdana</option>
 								<option value="Georgia">Georgia</option>
 								<option value="Times">Tlmes</option>
 							</select>
 						</label>
-						<label><span>Размер:</span>
+						<label><span>{{lang("size")}}:</span>
 							<select v-model.number="options.fontSize">
 								<option value="12">12</option>
 								<option value="14">14</option>
@@ -265,7 +277,71 @@
 	</div>
 
 	<script>
-		var app = new Vue({
+		const translations = [
+			{
+				id: "text",
+				"ru-RU": "Текст",
+				"en-US": "Text"
+			},
+			{
+				id: "background",
+				"ru-RU": "Фон",
+				"en-US": "Background"
+			},
+			{
+				id: "links",
+				"ru-RU": "Ссылки",
+				"en-US": "links"
+			},
+			{
+				id: "font",
+				"ru-RU": "Шрифт",
+				"en-US": "Font"
+			},
+			{
+				id: "text",
+				"ru-RU": "Текст",
+				"en-US": "Text"
+			},
+			{
+				id: "theme",
+				"ru-RU": "Тема",
+				"en-US": "Theme"
+			},
+			{
+				id: "open",
+				"ru-RU": "Открыть книгу",
+				"en-US": "Open book"
+			},
+			{
+				id: "size",
+				"ru-RU": "Размер",
+				"en-US": "Font size"
+			},
+			{
+				id: "not_supported",
+				"ru-RU": "Выбранный файл не поддерживается",
+				"en-US": "The file is not supported!"
+			},
+			{
+				id: "too_large",
+				"ru-RU": "Книга слишком большая и не будет сохранена в LocalStorage",
+				"en-US": "The book is too large to store text in LocalStorage"
+			},
+			{
+				id: "broken_book",
+				"ru-RU": "Книга повреждена",
+				"en-US": "The book is broken!"
+			},
+			{
+				id: "broken_archive",
+				"ru-RU": "Архив поврежден",
+				"en-US": "The archive is broken!"
+			},
+			
+		];
+
+		const app = new Vue({
 			el: "#app",
 			data: {
 				xml: null,
@@ -276,7 +352,8 @@
 					cover: "",
 					main: "",
 					notes: "",
-					hash: ""
+					hash: "",
+					chapters:[]
 				},
 				options: {
 					fontSize: 16,
@@ -284,7 +361,10 @@
 					background: "#FFFFFF",
 					links: "#00AAFF",
 					fontFamily: "Verdana",
-				}
+					theme: ""
+				},
+				locale: navigator.language || navigator.userLanguage,
+				translations: translations
 			},
 			mounted() {
 				if (localStorage['fb2Reader_book']) {
@@ -304,7 +384,7 @@
 
 				open() {
 					function error() {
-						alert("File not supported!");
+						alert(this.lang("not_supported"));
 					}
 					let that = this;
 					let div = document.createElement('div');
@@ -331,9 +411,9 @@
 											that.parse(result);
 										});
 								} else {
-									alert("File not supported!");
+									alert(this.lang("not_supported"));
 								}
-							});
+							}).catch(err => that.lang("broken_archive"));
 						} else {
 							error();
 							div.remove();
@@ -355,11 +435,11 @@
 							xml = parser.parseFromString(text, "text/xml");
 						}
 					} catch {
-						alert("Книга повреждена или не поддерживается!");
+						alert(this.lang("broken_book"));
 						return;
 					}
 					if (xml.getElementsByTagName("FictionBook").length == 0) {
-						alert("Формат книги не поддерживается!");
+						alert(this.lang("broken_book"));
 						return;
 					}
 
@@ -395,11 +475,6 @@
 					}
 
 					let bodys = xml.getElementsByTagName("body");
-					let output = "";
-
-					for (let body of bodys) {
-						output += this.parseNode(body);
-					}
 
 					this.book.main = "";
 					this.book.notes = "";
@@ -412,7 +487,13 @@
 						}
 					}
 
-					localStorage.setItem("fb2Reader_book", JSON.stringify(this.book));
+					try {
+						localStorage.setItem("fb2Reader_book", JSON.stringify(this.book));
+					} catch {
+						localStorage.removeItem("fb2Reader_book");
+						alert(this.lang("too_large"));
+					}
+					
 					this.restoreProgress();
 				},
 				parseNode(node) {
@@ -573,10 +654,12 @@
 					return output;
 				},
 				theme(event) {
-					let theme = event.target.dataset;
-					this.options.color = theme.color;
-					this.options.background = theme.background;
-					this.options.links = theme.links;
+					let theme = event.target.value;
+					if (theme == "custom") return;
+					theme = theme.split("/");
+					this.options.color = theme[0];
+					this.options.background = theme[1];
+					this.options.links = theme[2];
 				},
 				hashCode(s) {
 					return s.split("").reduce(function(a, b) {
@@ -608,6 +691,16 @@
 				hideNotes() {
 					this.showNotes = false;
 					history.pushState(null, null, ' ');
+				},
+				lang(id) {
+					translation = this.translations.find(z=>z.id==id);
+					if (translation) {
+						if (translation.hasOwnProperty(this.locale)) {
+							return translation[this.locale];
+						} else {
+							return translation["en-US"];
+						}
+					}
 				}
 			},
 			computed: {
