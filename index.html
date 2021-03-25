@@ -478,7 +478,7 @@
 					theme: "#000000/#FFFFFF/#00AAFF",
 					figure: "transparent"
 				},
-				locale: navigator.language || navigator.userLanguage,
+				locale: navigator.language || navigator.userLanguage || "en",
 				translations: translations
 			},
 			mounted() {
@@ -818,7 +818,7 @@
 						if (translation.hasOwnProperty(this.locale)) {
 							return translation[this.locale];
 						} else {
-							return translation["en-US"];
+							return translation["en"];
 						}
 					}
 				}
