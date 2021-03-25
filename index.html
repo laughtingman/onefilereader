@@ -166,15 +166,17 @@
 		}
 
 		.scroll::-webkit-scrollbar-thumb {
-			background-color: #ccc; 
+			background-color: #ccc;
 			border-radius: 20px;
 		}
 
-		body::-webkit-scrollbar, .notes .scroll::-webkit-scrollbar {
+		body::-webkit-scrollbar,
+		.notes .scroll::-webkit-scrollbar {
 			width: 0.4rem;
 		}
 
-		body::-webkit-scrollbar-thumb, .notes .scroll::-webkit-scrollbar-thumb { 
+		body::-webkit-scrollbar-thumb,
+		.notes .scroll::-webkit-scrollbar-thumb {
 			border-radius: 20px;
 		}
 
@@ -218,7 +220,7 @@
 			color: currentColor;
 			position: absolute;
 			right: 0.4rem;
-			top:0;
+			top: 0;
 			width: 2rem;
 			cursor: pointer;
 		}
@@ -272,7 +274,7 @@
 						<label><span>{{lang("font")}}:</span>
 							<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}">
 								<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
-								<option value="Georgia,serif"style="font-family: Georgia,serif">Georgia</option>
+								<option value="Georgia,serif" style="font-family: Georgia,serif">Georgia</option>
 								<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
 							</select>
 						</label>
@@ -298,8 +300,95 @@
 	</div>
 
 	<script>
-		const translations = [
-			{
+		const SimpleIDB = {
+
+			dbName: "myDatabase",
+			storeName: "myStore",
+
+			initialize() {
+				let that = this;
+				window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+
+				return new Promise((resolve, reject) => {
+					let request = indexedDB.open(that.dbName);
+					request.onupgradeneeded = function() {
+						request.result.createObjectStore(that.storeName);
+						resolve();
+					}
+					request.onerror = function() {
+						reject(request.error);
+					}
+				});
+			},
+
+			get(key) {
+				let that = this;
+				return new Promise((resolve, reject) => {
+					let oRequest = indexedDB.open(that.dbName);
+					oRequest.onsuccess = function() {
+						let db = oRequest.result
+						let tx = db.transaction(that.storeName, 'readonly');
+						let st = tx.objectStore(that.storeName)
+						let gRequest = st.get(key);
+						gRequest.onsuccess = function() {
+							resolve(gRequest.result);
+						}
+						gRequest.onerror = function() {
+							reject(gRequest.error);
+						}
+					}
+					oRequest.onerror = function() {
+						reject(oRequest.error);
+					}
+				});
+			},
+
+			set(key, value) {
+				let that = this;
+				return new Promise((resolve, reject) => {
+					let oRequest = indexedDB.open(that.dbName);
+					oRequest.onsuccess = function() {
+						let db = oRequest.result
+						let tx = db.transaction(that.storeName, 'readwrite')
+						let st = tx.objectStore(that.storeName)
+						let sRequest = st.put(value, key)
+						sRequest.onsuccess = function() {
+							resolve();
+						}
+						sRequest.onerror = function() {
+							reject(sRequest.error);
+						}
+					}
+					oRequest.onerror = function() {
+						reject(oRequest.error);
+					}
+				});
+			},
+
+			remove(key) {
+				let that = this;
+				return new Promise((resolve, reject) => {
+					let oRequest = indexedDB.open(that.dbName);
+					oRequest.onsuccess = function() {
+						let db = oRequest.result
+						let tx = db.transaction(that.storeName, 'readwrite');
+						let st = tx.objectStore(that.storeName);
+						let rRequest = st.delete(key);
+						rRequest.onsuccess = function() {
+							resolve();
+						}
+						rRequest.onerror = function() {
+							reject(rRequest.error);
+						}
+					}
+					oRequest.onerror = function() {
+						reject(oRequest.error);
+					}
+				});
+			}
+		}
+
+		const translations = [{
 				id: "text",
 				"ru": "Текст",
 				"en": "Text"
@@ -350,11 +439,6 @@
 				"en": "The file is not supported!"
 			},
 			{
-				id: "too_large",
-				"ru": "Книга слишком большая и не будет сохранена в LocalStorage",
-				"en": "The book is too large to store text in LocalStorage"
-			},
-			{
 				id: "broken_book",
 				"ru": "Книга повреждена",
 				"en": "The book is broken!"
@@ -364,7 +448,7 @@
 				"ru": "Архив поврежден",
 				"en": "The archive is broken!"
 			},
-			
+
 		];
 
 		const app = new Vue({
@@ -379,7 +463,7 @@
 					main: "",
 					notes: "",
 					hash: "",
-					chapters:[]
+					chapters: []
 				},
 				options: {
 					fontSize: 16,
@@ -394,15 +478,22 @@
 				translations: translations
 			},
 			mounted() {
-				if (localStorage['fb2Reader_book']) {
-					this.book = JSON.parse(localStorage['fb2Reader_book']);
-				}
+
+				let query = SimpleIDB.initialize();
+				query.catch((error)=>{alert(error)});
+
+				query = SimpleIDB.get("fb2Reader_book");
+				query.then((value) => {
+					if (value != undefined) {
+						this.book = JSON.parse(value);
+						this.restoreProgress();
+					}
+				}).catch((error) => {alert(error)});
 
 				if (localStorage['fb2Reader_options']) {
 					this.options = JSON.parse(localStorage['fb2Reader_options']);
 				}
-
-				this.restoreProgress();
+				
 			},
 			updated() {
 				localStorage.setItem("fb2Reader_options", JSON.stringify(this.options));
@@ -420,7 +511,7 @@
 					fileInput.addEventListener('change', function() {
 						let file = fileInput.files[0];
 						if (file.name.match(/\.(fb2)$/)) {
-							
+
 							let reader = new FileReader();
 							reader.onload = function() {
 								that.parse(reader.result);
@@ -434,9 +525,9 @@
 
 								let file = zip.file(/\.fb2$/);
 								if (file[0] != undefined) {
-									file[0].async("arraybuffer").then(function (result) {
-											that.parse(result);
-										});
+									file[0].async("arraybuffer").then(function(result) {
+										that.parse(result);
+									});
 								} else {
 									alert(this.lang("not_supported"));
 								}
@@ -487,7 +578,7 @@
 					this.book.cover = "";
 
 					let coverpage = xml.getElementsByTagName("coverpage")[0];
-					if (coverpage !=null) {
+					if (coverpage != null) {
 						let cover = coverpage.getElementsByTagName("image")[0];
 						if (cover != null) {
 							let id = cover.getAttribute("l:href") || cover.getAttribute("xlink:href");
@@ -506,21 +597,19 @@
 					this.book.main = "";
 					this.book.notes = "";
 
-					for (let i=0; i<bodys.length; i++) {
-						if (i==0) {
+					for (let i = 0; i < bodys.length; i++) {
+						if (i == 0) {
 							this.book.main = this.parseNode(bodys[i]);
 						} else {
 							this.book.notes += this.parseNode(bodys[i]);
 						}
 					}
 
-					try {
-						localStorage.setItem("fb2Reader_book", JSON.stringify(this.book));
-					} catch {
-						localStorage.removeItem("fb2Reader_book");
-						alert(this.lang("too_large"));
-					}
 					
+					let query = SimpleIDB.set("fb2Reader_book", JSON.stringify(this.book));
+					query.catch((error) => {alert(error)});
+					
+
 					this.restoreProgress();
 				},
 				parseNode(node) {
@@ -709,7 +798,7 @@
 					}
 				},
 				nodeText(node) {
-					if (node != null && node != undefined && node.childNodes.length>0) {
+					if (node != null && node != undefined && node.childNodes.length > 0) {
 						return node.childNodes[0].nodeValue;
 					} else {
 						return "";
@@ -720,7 +809,7 @@
 					history.pushState(null, null, ' ');
 				},
 				lang(id) {
-					translation = this.translations.find(z=>z.id==id);
+					translation = this.translations.find(z => z.id == id);
 					if (translation) {
 						if (translation.hasOwnProperty(this.locale)) {
 							return translation[this.locale];
@@ -788,7 +877,7 @@
 			}
 		});
 
-		window.addEventListener("hashchange", function(){
+		window.addEventListener("hashchange", function() {
 			app.showNotes = true;
 		});
 	</script>
