@@ -69,6 +69,7 @@
 			display: flex;
 			margin: 0.3rem 0;
 			color: black;
+			align-items: center;
 		}
 
 		.panel label span {
@@ -80,8 +81,10 @@
 		button,
 		select,
 		input {
-			font-size: 1em;
+			font-size: 1rem;
 			width: 100%;
+			height: 1.5rem;
+			outline: none;
 		}
 
 		body {
@@ -104,8 +107,7 @@
 			font-size: 1em;
 			line-height: 1.5em;
 			margin: 1em 0;
-			text-align: justify;
-			text-indent: 2em;
+			text-indent: 1.5em;
 		}
 
 		img {
@@ -113,6 +115,16 @@
 			margin: 0 auto;
 			max-width: 100%;
 			height: auto;
+		}
+
+		figure {
+			display: block;
+			margin: 1em auto;
+			width: max-content;
+		}
+
+		figure.png {
+			background-color: white;
 		}
 
 		.title {
@@ -234,10 +246,11 @@
 					</div>
 					<div class="group">
 						<label><span>{{lang("theme")}}:</span>
-							<select @change="theme" v-model="options.theme">
-								<option value="#000000/#FFFFFF/#00AAFF">Black on white</option>
-								<option value="#CCCCCC/#000000/#00AAFF">Grey on black</option>
-								<option value="#5bae67/#000000/#8cae5b">Green on black</option>
+							<select @change="theme" v-model="options.theme" :style="{color:options.color,backgroundColor:options.background}">
+								<option value="#000000/#FFFFFF/#00AAFF" style="color:#000000;background:#FFFFFF">Black on white</option>
+								<option value="#111111/#FFFad6/#AD6410" style="color:#111111;background:#FFFad6">Grey on yellow</option>
+								<option value="#CCCCCC/#000000/#00AAFF" style="color:#CCCCCC;background:#000000">Grey on black</option>
+								<option value="#5bae67/#000000/#8cae5b" style="color:#5bae67;background:#000000">Green on black</option>
 								<option value="custom">Custom</option>
 							</select>
 						</label>
@@ -248,11 +261,19 @@
 						<label><span>{{lang("links")}}:</span><input type="color" v-model="options.links"></label>
 					</div>
 					<div class="group">
+						<label><span>{{lang("imgbg")}}:</span>
+							<select v-model="options.figure">
+								<option value="transparent">Transparent</option>
+								<option value="white">White</option>
+							</select>
+						</label>
+					</div>
+					<div class="group">
 						<label><span>{{lang("font")}}:</span>
-							<select v-model="options.fontFamily">
-								<option value="Verdana">Verdana</option>
-								<option value="Georgia">Georgia</option>
-								<option value="Times">Tlmes</option>
+							<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}">
+								<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
+								<option value="Georgia,serif"style="font-family: Georgia,serif">Georgia</option>
+								<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
 							</select>
 						</label>
 						<label><span>{{lang("size")}}:</span>
@@ -319,6 +340,11 @@
 				"en": "Font size"
 			},
 			{
+				id: "imgbg",
+				"ru": "Фон картинок",
+				"en": "Picture background"
+			},
+			{
 				id: "not_supported",
 				"ru": "Выбранный файл не поддерживается",
 				"en": "The file is not supported!"
@@ -360,8 +386,9 @@
 					color: "#000000",
 					background: "#FFFFFF",
 					links: "#00AAFF",
-					fontFamily: "Verdana",
-					theme: ""
+					fontFamily: "Verdana,sans-serif",
+					theme: "#000000/#FFFFFF/#00AAFF",
+					figure: "transparent"
 				},
 				locale: navigator.language || navigator.userLanguage,
 				translations: translations
@@ -603,7 +630,7 @@
 									if (binary != null) {
 										let type = binary.getAttribute("content-type");
 										let base64 = binary.childNodes[0].nodeValue;
-										return `<img src="data:${type};base64,${base64}">`
+										return `<figure><img src="data:${type};base64,${base64}"></figure>`
 									} else {
 										return "";
 									}
@@ -737,6 +764,10 @@
 						.notes {
 							border-top: 1px solid ${this.options.color};
 							background-color: ${this.options.background};
+						}
+
+						figure {
+							background-color: ${this.options.figure};
 						}
 						</style>`;
 				}
