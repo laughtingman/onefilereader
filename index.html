@@ -249,6 +249,7 @@
 					<div class="group">
 						<div>{{book.author.firstName}} {{book.author.lastName}}</div>
 						<div><b>{{book.title}}</b></div>
+						<div>{{percent}}%</div>
 					</div>
 					<div class="group">
 						<label><span>{{lang("theme")}}:</span>
@@ -479,7 +480,8 @@
 					figure: "transparent"
 				},
 				locale: navigator.language || navigator.userLanguage || "en",
-				translations: translations
+				translations: translations,
+				percent: 0
 			},
 			mounted() {
 
@@ -821,6 +823,9 @@
 							return translation["en"];
 						}
 					}
+				},
+				scrollPercent() {
+    				this.percent = ((document.documentElement.scrollTop + document.body.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight) * 100).toFixed(2);
 				}
 			},
 			computed: {
@@ -869,6 +874,7 @@
 
 		window.addEventListener('scroll', function(e) {
 			app.hideNotes();
+			app.scrollPercent();
 			let p = document.getElementsByTagName('p');
 			let wt = window.pageYOffset || document.documentElement.scrollTop;
 			for (var i = 0; i < p.length; i++) {
