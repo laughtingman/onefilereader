@@ -11,6 +11,13 @@
 	<link rel="shortcut icon" href="data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3Csvg version='1.1' id='icon' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 296.999 296.999' style='enable-background:new 0 0 296.999 296.999;' xml:space='preserve'%3E%3Cg%3E%3Cg%3E%3Cg%3E%3Cpath d='M45.432,35.049c-0.008,0-0.017,0-0.025,0c-2.809,0-5.451,1.095-7.446,3.085c-2.017,2.012-3.128,4.691-3.128,7.543 v159.365c0,5.844,4.773,10.61,10.641,10.625c24.738,0.059,66.184,5.215,94.776,35.136V84.023c0-1.981-0.506-3.842-1.461-5.382 C115.322,40.849,70.226,35.107,45.432,35.049z'/%3E%3Cpath d='M262.167,205.042V45.676c0-2.852-1.111-5.531-3.128-7.543c-1.995-1.99-4.639-3.085-7.445-3.085c-0.009,0-0.018,0-0.026,0 c-24.793,0.059-69.889,5.801-93.357,43.593c-0.955,1.54-1.46,3.401-1.46,5.382v166.779 c28.592-29.921,70.038-35.077,94.776-35.136C257.394,215.651,262.167,210.885,262.167,205.042z'/%3E%3Cpath d='M286.373,71.801h-7.706v133.241c0,14.921-12.157,27.088-27.101,27.125c-20.983,0.05-55.581,4.153-80.084,27.344 c42.378-10.376,87.052-3.631,112.512,2.171c3.179,0.724,6.464-0.024,9.011-2.054c2.538-2.025,3.994-5.052,3.994-8.301V82.427 C297,76.568,292.232,71.801,286.373,71.801z'/%3E%3Cpath d='M18.332,205.042V71.801h-7.706C4.768,71.801,0,76.568,0,82.427v168.897c0,3.25,1.456,6.276,3.994,8.301 c2.545,2.029,5.827,2.78,9.011,2.054c25.46-5.803,70.135-12.547,112.511-2.171c-24.502-23.19-59.1-27.292-80.083-27.342 C30.49,232.13,18.332,219.963,18.332,205.042z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A" type="image/svg+xml">
 
 	<style>
+		.panel,
+		.tab,
+		.group,
+		.scroll {
+			box-sizing: border-box;
+		}
+
 		.panel {
 			position: fixed;
 			top: 0;
@@ -22,21 +29,24 @@
 			font-size: 1rem;
 			transition-property: left;
 			transition-duration: 0.5s;
+			display: flex;
+			flex-direction: column;
+			border-right: 1px solid #ccc;
+		}
+
+		.panel .tab {
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			height: 100%;
+			overflow: hidden;
 		}
 
 		.panel .scroll {
-			box-sizing: border-box;
-			padding: 0.5rem;
-			overflow-y: scroll;
+			overflow-y: auto;
 			overflow-x: hidden;
 			width: 100%;
 			height: 100%;
-		}
-
-		.panel a {
-			color: gray;
-			display: block;
-			margin: 0.3rem 0;
 		}
 
 		.panel:after {
@@ -50,7 +60,9 @@
 			text-align: center;
 		}
 
-		.panel:hover {
+		.panel:hover,
+		.panel:focus,
+		.panel.active {
 			left: 0;
 		}
 
@@ -61,7 +73,7 @@
 
 
 		.panel .group {
-			margin: 1rem 0;
+			padding: 0.5rem;
 			color: black;
 		}
 
@@ -78,13 +90,14 @@
 			margin-right: 0.2rem;
 		}
 
-		button,
-		select,
-		input {
+		.panel button,
+		.panel select,
+		.panel input {
 			font-size: 1rem;
 			width: 100%;
 			height: 1.5rem;
 			outline: none;
+			box-sizing: border-box;
 		}
 
 		body {
@@ -125,6 +138,7 @@
 			display: block;
 			margin: 1em auto;
 			width: max-content;
+			max-width: 100%;
 		}
 
 		figure.png {
@@ -232,66 +246,185 @@
 		.notes .body {
 			padding-right: 0.2em;
 		}
+
+		.panel .statusbar {
+			background: rgba(0, 0, 0, 0.1);
+		}
+
+		.panel .statusbar .value {
+			background: rgba(0, 0, 0, 0.1);
+		}
+
+		.panel .tabs {
+			display: flex;
+		}
+
+		.panel .tabs input {
+			display: none
+		}
+
+		.panel .tabs label {
+			background-color: rgba(0, 0, 0, .1);
+			padding: 0.5rem;
+			margin: 0;
+			width: 100%;
+			justify-content: center;
+		}
+
+		.panel .tabs input:checked+label {
+			background-color: transparent;
+		}
+
+		.panel .chapters {
+			padding: 0;
+			margin: 0;
+		}
+
+		.panel .chapter {
+			list-style: none;
+		}
+
+		.panel .chapter:empty {
+			display: none;
+		}
+
+		.panel .chapter a {
+			display: block;
+			cursor: pointer;
+			color: black;
+			user-select: none;
+			padding: 0.3rem 0.5rem;
+		}
+
+		.panel .chapter a:hover, .chapter a.active {
+			background-color: rgba(0, 0, 0, .1);
+		}
+
+		.icon {
+			display: inline-block;
+			width: 1em;
+			height: 1em;
+			stroke-width: 0;
+			stroke: currentColor;
+			fill: currentColor;
+		}
+
+		.panel img {
+			width: 100%;
+		}
+
+		.panel p {
+			text-indent: 0;
+		}
 	</style>
 </head>
 
 <body>
+
+	<svg style="display: none;">
+		<symbol id="icon-settings" viewBox="0 0 32 32">
+			<path d="M29.181 19.070c-1.679-2.908-0.669-6.634 2.255-8.328l-3.145-5.447c-0.898 0.527-1.943 0.829-3.058 0.829-3.361 0-6.085-2.742-6.085-6.125h-6.289c0.008 1.044-0.252 2.103-0.811 3.070-1.679 2.908-5.411 3.897-8.339 2.211l-3.144 5.447c0.905 0.515 1.689 1.268 2.246 2.234 1.676 2.903 0.672 6.623-2.241 8.319l3.145 5.447c0.895-0.522 1.935-0.82 3.044-0.82 3.35 0 6.067 2.725 6.084 6.092h6.289c-0.003-1.034 0.259-2.080 0.811-3.038 1.676-2.903 5.399-3.894 8.325-2.219l3.145-5.447c-0.899-0.515-1.678-1.266-2.232-2.226zM16 22.479c-3.578 0-6.479-2.901-6.479-6.479s2.901-6.479 6.479-6.479c3.578 0 6.479 2.901 6.479 6.479s-2.901 6.479-6.479 6.479z"></path>
+		</symbol>
+		<symbol id="icon-book" viewBox="0 0 32 32">
+			<path d="M28 4v26h-21c-1.657 0-3-1.343-3-3s1.343-3 3-3h19v-24h-20c-2.2 0-4 1.8-4 4v24c0 2.2 1.8 4 4 4h24v-28h-2z"></path>
+			<path d="M7.002 26v0c-0.001 0-0.001 0-0.002 0-0.552 0-1 0.448-1 1s0.448 1 1 1c0.001 0 0.001-0 0.002-0v0h18.997v-2h-18.997z"></path>
+		</symbol>
+		<symbol id="icon-list" viewBox="0 0 32 32">
+			<path d="M0 0h8v8h-8zM12 2h20v4h-20zM0 12h8v8h-8zM12 14h20v4h-20zM0 24h8v8h-8zM12 26h20v4h-20z"></path>
+		</symbol>
+	</svg>
+
 	<div id="app">
 		<div class="book" :style="style">
-			<div class="panel">
-				<div class="scroll">
+			<div class="panel active">
+
+				<div class="tabs">
+					<input type="radio" value="1" v-model.number="tab" id="tab1"><label for="tab1"><svg class="icon">
+							<use xlink:href="#icon-book"></use>
+						</svg></label>
+					<input type="radio" value="2" v-model.number="tab" id="tab2"><label for="tab2"><svg class="icon">
+							<use xlink:href="#icon-list"></use>
+						</svg></label>
+					<input type="radio" value="3" v-model.number="tab" id="tab3"><label for="tab3"><svg class="icon">
+							<use xlink:href="#icon-settings"></use>
+						</svg></label>
+				</div>
+				<div v-show="tab==1" class="tab">
 					<div class="group">
 						<button class="btn" @click="open">{{lang("open")}}</button>
 					</div>
-					<div class="group">
-						<img :src="book.cover">
+					<div class="scroll">
+						<div class="group">
+							<img :src="book.cover">
+							<div class="statusbar">
+								<div class="value" :style="{width:percent + '%'}">{{percent}}%</div>
+							</div>
+						</div>
+						<div class="group">
+							<div>{{book.author.firstName}} {{book.author.lastName}}</div>
+							<div><b>{{book.title}}</b></div>
+						</div>
+						<div class="group">
+							<div v-html="book.annotation"></div>
+						</div>
 					</div>
+				</div>
+				<div v-show="tab==2" class="tab">
 					<div class="group">
-						<div>{{book.author.firstName}} {{book.author.lastName}}</div>
-						<div><b>{{book.title}}</b></div>
-						<div>{{percent}}%</div>
+						<input type="search" v-model="filter">
 					</div>
-					<div class="group">
-						<label><span>{{lang("theme")}}:</span>
-							<select @change="theme" v-model="options.theme" :style="{color:options.color,backgroundColor:options.background}">
-								<option value="#000000/#FFFFFF/#00AAFF" style="color:#000000;background:#FFFFFF">Black on white</option>
-								<option value="#111111/#FFFad6/#AD6410" style="color:#111111;background:#FFFad6">Grey on yellow</option>
-								<option value="#CCCCCC/#000000/#00AAFF" style="color:#CCCCCC;background:#000000">Grey on black</option>
-								<option value="#5bae67/#000000/#8cae5b" style="color:#5bae67;background:#000000">Green on black</option>
-								<option value="custom">Custom</option>
-							</select>
-						</label>
+					<div class="scroll">
+						<ul class="chapters">
+							<li class="chapter" v-for="(chapter,i) in chapters">
+								<a @click="goChapter(i)" v-if="chapter.length" :class="{active:i==currentChapter}">{{chapter}}</a>
+							</li>
+						</ul>
 					</div>
-					<div class="group" v-if="options.theme=='custom'">
-						<label><span>{{lang("text")}}:</span><input type="color" v-model="options.color"></label>
-						<label><span>{{lang("background")}}:</span><input type="color" v-model="options.background"></label>
-						<label><span>{{lang("links")}}:</span><input type="color" v-model="options.links"></label>
-					</div>
-					<div class="group">
-						<label><span>{{lang("imgbg")}}:</span>
-							<select v-model="options.figure">
-								<option value="transparent">Transparent</option>
-								<option value="white">White</option>
-							</select>
-						</label>
-					</div>
-					<div class="group">
-						<label><span>{{lang("font")}}:</span>
-							<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}">
-								<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
-								<option value="Georgia,serif" style="font-family: Georgia,serif">Georgia</option>
-								<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
-							</select>
-						</label>
-						<label><span>{{lang("size")}}:</span>
-							<select v-model.number="options.fontSize">
-								<option value="12">12</option>
-								<option value="14">14</option>
-								<option value="16">16</option>
-								<option value="18">18</option>
-								<option value="24">24</option>
-							</select>
-						</label>
+				</div>
+				<div v-show="tab==3" class="tab">
+					<div class="scroll">
+						<div class="group">
+							<label><span>{{lang("theme")}}:</span>
+								<select @change="theme" v-model="options.theme" :style="{color:options.color,backgroundColor:options.background}">
+									<option value="#000000/#FFFFFF/#00AAFF" style="color:#000000;background:#FFFFFF">Black on white</option>
+									<option value="#111111/#FFFad6/#AD6410" style="color:#111111;background:#FFFad6">Grey on yellow</option>
+									<option value="#CCCCCC/#000000/#00AAFF" style="color:#CCCCCC;background:#000000">Grey on black</option>
+									<option value="#5bae67/#000000/#8cae5b" style="color:#5bae67;background:#000000">Green on black</option>
+									<option value="custom">Custom</option>
+								</select>
+							</label>
+						</div>
+						<div class="group" v-if="options.theme=='custom'">
+							<label><span>{{lang("text")}}:</span><input type="color" v-model="options.color"></label>
+							<label><span>{{lang("background")}}:</span><input type="color" v-model="options.background"></label>
+							<label><span>{{lang("links")}}:</span><input type="color" v-model="options.links"></label>
+						</div>
+						<div class="group">
+							<label><span>{{lang("imgbg")}}:</span>
+								<select v-model="options.figure">
+									<option value="transparent">Transparent</option>
+									<option value="white">White</option>
+								</select>
+							</label>
+						</div>
+						<div class="group">
+							<label><span>{{lang("font")}}:</span>
+								<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}">
+									<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
+									<option value="Georgia,serif" style="font-family: Georgia,serif">Georgia</option>
+									<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
+								</select>
+							</label>
+							<label><span>{{lang("size")}}:</span>
+								<select v-model.number="options.fontSize">
+									<option value="12">12</option>
+									<option value="14">14</option>
+									<option value="16">16</option>
+									<option value="18">18</option>
+									<option value="24">24</option>
+								</select>
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -468,7 +601,8 @@
 					main: "",
 					notes: "",
 					hash: "",
-					chapters: []
+					chapters: [],
+					annotation: ""
 				},
 				options: {
 					fontSize: 16,
@@ -481,12 +615,17 @@
 				},
 				locale: navigator.language || navigator.userLanguage || "en",
 				translations: translations,
-				percent: 0
+				percent: 0,
+				currentChapter: 0,
+				tab: 1,
+				filter: ""
 			},
 			mounted() {
 
 				let query = SimpleIDB.initialize();
-				query.catch((error)=>{alert(error)});
+				query.catch((error) => {
+					alert(error)
+				});
 
 				query = SimpleIDB.get("fb2Reader_book");
 				query.then((value) => {
@@ -494,18 +633,19 @@
 						this.book = JSON.parse(value);
 						this.restoreProgress();
 					}
-				}).catch((error) => {alert(error)});
+				}).catch((error) => {
+					alert(error)
+				});
 
 				if (localStorage['fb2Reader_options']) {
 					this.options = JSON.parse(localStorage['fb2Reader_options']);
 				}
-				
+
 			},
 			updated() {
 				localStorage.setItem("fb2Reader_options", JSON.stringify(this.options));
 			},
 			methods: {
-
 				open() {
 					function error() {
 						alert(this.lang("not_supported"));
@@ -598,27 +738,38 @@
 						}
 					}
 
+					this.book.annotation = "нет";
+
+					let annotation = xml.getElementsByTagName("annotation")[0];
+
+					if (annotation != null) {
+						this.book.annotation = this.parseNode(annotation, 1);
+					}
+
 					let bodys = xml.getElementsByTagName("body");
 
 					this.book.main = "";
 					this.book.notes = "";
+					this.book.chapters = [];
 
 					for (let i = 0; i < bodys.length; i++) {
 						if (i == 0) {
-							this.book.main = this.parseNode(bodys[i]);
+							this.book.main = this.parseNode(bodys[i], i);
 						} else {
-							this.book.notes += this.parseNode(bodys[i]);
+							this.book.notes += this.parseNode(bodys[i], i);
 						}
 					}
 
-					
+
 					let query = SimpleIDB.set("fb2Reader_book", JSON.stringify(this.book));
-					query.catch((error) => {alert(error)});
-					
+					query.catch((error) => {
+						alert(error)
+					});
+
 
 					this.restoreProgress();
 				},
-				parseNode(node) {
+				parseNode(node, i) {
 					output = "";
 
 					if (node.nodeType == 1) {
@@ -628,6 +779,12 @@
 							body: {
 								start(node) {
 									return "<div class='body'>"
+								},
+								end: "</div>"
+							},
+							annotation: {
+								start(node) {
+									return "<div class='annotation'>"
 								},
 								end: "</div>"
 							},
@@ -646,6 +803,17 @@
 							},
 							title: {
 								start(node) {
+									let title = [];
+									for (let p of node.getElementsByTagName("p")) {
+										title.push(p.childNodes[0].nodeValue);
+									}
+									if (i == 0) {
+										if (node.parentNode.nodeName != "body") {
+											that.book.chapters.push(title.join(" - "));
+										} else {
+											that.book.chapters.push("");
+										}
+									}
 									return "<div class='title'>"
 								},
 								end: "</div>"
@@ -757,7 +925,7 @@
 
 							if (end != "") {
 								for (let childNode of node.childNodes) {
-									output += this.parseNode(childNode);
+									output += this.parseNode(childNode, i);
 								}
 								output += end;
 							}
@@ -811,8 +979,10 @@
 					}
 				},
 				hideNotes() {
-					this.showNotes = false;
-					history.pushState(null, null, ' ');
+					if (this.showNotes) {
+						this.showNotes = false;
+						history.pushState(null, null, ' ');
+					}
 				},
 				lang(id) {
 					translation = this.translations.find(z => z.id == id);
@@ -825,7 +995,11 @@
 					}
 				},
 				scrollPercent() {
-    				this.percent = ((document.documentElement.scrollTop + document.body.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight) * 100).toFixed(2);
+					this.percent = ((document.documentElement.scrollTop + document.body.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight) * 100).toFixed(2);
+				},
+				goChapter(i) {
+					let chapters = document.getElementsByClassName('title');
+					chapters[i].scrollIntoView();
 				}
 			},
 			computed: {
@@ -868,6 +1042,9 @@
 							background-color: ${this.options.figure};
 						}
 						</style>`;
+				},
+				chapters() {
+					return this.book.chapters.filter(z => z.toUpperCase().indexOf(this.filter.toUpperCase()) > -1);
 				}
 			}
 		});
@@ -877,12 +1054,20 @@
 			app.scrollPercent();
 			let p = document.getElementsByTagName('p');
 			let wt = window.pageYOffset || document.documentElement.scrollTop;
-			for (var i = 0; i < p.length; i++) {
+			for (let i = 0; i < p.length; i++) {
 				let bt = p[i].offsetTop,
 					bb = bt + p[i].offsetHeight;
 				if (bt < wt && bb >= wt) {
 					localStorage.setItem("fb2Reader_scroll" + app.book.hash, i);
 					return true;
+				}
+			}
+			let title = document.querySelectorAll(".page .title");
+			for (let j = title.length-1; j >= 0; j--) {
+				let bt = title[j].offsetTop;
+				if (bt <= wt+1) {
+					app.currentChapter = j;
+					break;
 				}
 			}
 		});
