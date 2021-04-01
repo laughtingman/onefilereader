@@ -344,17 +344,17 @@
 			<div class="panel">
 
 				<div class="tabs">
-					<input type="radio" value="1" v-model.number="tab" id="tab1"><label for="tab1"><svg class="icon">
+					<input type="radio" value="1" v-model.number="options.tab" id="tab1"><label for="tab1"><svg class="icon">
 							<use xlink:href="#icon-book"></use>
 						</svg></label>
-					<input type="radio" value="2" v-model.number="tab" id="tab2"><label for="tab2"><svg class="icon">
+					<input type="radio" value="2" v-model.number="options.tab" id="tab2"><label for="tab2"><svg class="icon">
 							<use xlink:href="#icon-list"></use>
 						</svg></label>
-					<input type="radio" value="3" v-model.number="tab" id="tab3"><label for="tab3"><svg class="icon">
+					<input type="radio" value="3" v-model.number="options.tab" id="tab3"><label for="tab3"><svg class="icon">
 							<use xlink:href="#icon-settings"></use>
 						</svg></label>
 				</div>
-				<div v-show="tab==1" class="tab">
+				<div v-show="options.tab==1" class="tab">
 					<div class="group">
 						<button class="btn" @click="open">{{lang("open")}}</button>
 					</div>
@@ -374,7 +374,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-show="tab==2" class="tab">
+				<div v-show="options.tab==2" class="tab">
 					<div class="group">
 						<input type="search" v-model="filter">
 					</div>
@@ -386,7 +386,7 @@
 						</ul>
 					</div>
 				</div>
-				<div v-show="tab==3" class="tab">
+				<div v-show="options.tab==3" class="tab">
 					<div class="scroll">
 						<div class="group">
 							<label><span>{{lang("theme")}}:</span>
@@ -616,13 +616,13 @@
 					links: "#00AAFF",
 					fontFamily: "Verdana,sans-serif",
 					theme: "#000000/#FFFFFF/#00AAFF",
-					figure: "transparent"
+					figure: "transparent",
+					tab: 1
 				},
 				locale: navigator.language || navigator.userLanguage || "en",
 				translations: translations,
 				percent: 0,
 				currentChapter: 0,
-				tab: 1,
 				filter: ""
 			},
 			mounted() {
