@@ -40,6 +40,7 @@
 			position: relative;
 			height: 100%;
 			overflow: hidden;
+			padding-top: 1rem;
 		}
 
 		.panel .scroll {
@@ -50,7 +51,7 @@
 		}
 
 		.panel:after {
-			content: "\00A7";
+			content: "";
 			display: block;
 			position: absolute;
 			top: 0;
@@ -66,12 +67,6 @@
 			left: 0;
 		}
 
-		.panel:hover:after {
-			content: "";
-		}
-
-
-
 		.panel .group {
 			padding: 0.5rem;
 			color: black;
@@ -79,9 +74,12 @@
 
 		.panel label {
 			display: flex;
-			margin: 0.3rem 0;
 			color: black;
 			align-items: center;
+		}
+
+		.panel label+label {
+			margin-top: 0.3rem;
 		}
 
 		.panel label span {
@@ -269,10 +267,31 @@
 			margin: 0;
 			width: 100%;
 			justify-content: center;
+			border-left: 1px solid transparent;
+			border-right: 1px solid transparent;
 		}
 
 		.panel .tabs input:checked+label {
 			background-color: transparent;
+		}
+
+		.panel .tabs input:checked+label:not(:last-of-type) {
+			border-right-color: #ccc;
+		}
+
+		.panel .tabs input:checked+label:not(:first-of-type) {
+			border-left-color: #ccc;
+		}
+
+		.panel .tabs label.pin {
+			width: 1rem;
+			color: rgba(1, 1, 1, .2);
+			border-left-color: transparent !important;
+		}
+
+		.panel .tabs input:checked+label.pin {
+			background-color: rgba(1, 1, 1, .1);
+			color: rgba(0, 170, 255);
 		}
 
 		.panel .chapters {
@@ -296,9 +315,10 @@
 			padding: 0.3rem 0.5rem;
 		}
 
-		.panel .chapter a:hover, .chapter a.active {
+		.panel .chapter a:hover,
+		.chapter a.active {
 			background-color: rgba(0, 0, 0, .1);
-			
+
 		}
 
 		.panel .chapter a.active {
@@ -337,11 +357,14 @@
 		<symbol id="icon-list" viewBox="0 0 32 32">
 			<path d="M0 0h8v8h-8zM12 2h20v4h-20zM0 12h8v8h-8zM12 14h20v4h-20zM0 24h8v8h-8zM12 26h20v4h-20z"></path>
 		</symbol>
+		<symbol id="icon-pin" viewBox="0 0 20 20">
+			<path d="M11 12h6v-1l-3-1v-8l3-1v-1h-14v1l3 1v8l-3 1v1h6v7l1 1 1-1v-7z"></path>
+		</symbol>
 	</svg>
 
 	<div id="app">
 		<div class="book" :style="style">
-			<div class="panel">
+			<div class="panel" :class="{active:options.pin}">
 
 				<div class="tabs">
 					<input type="radio" value="1" v-model.number="options.tab" id="tab1"><label for="tab1"><svg class="icon">
@@ -352,6 +375,9 @@
 						</svg></label>
 					<input type="radio" value="3" v-model.number="options.tab" id="tab3"><label for="tab3"><svg class="icon">
 							<use xlink:href="#icon-settings"></use>
+						</svg></label>
+					<input type="checkbox" v-model="options.pin" id="pin"><label class="pin" for="pin"><svg class="icon icon-pin">
+							<use xlink:href="#icon-pin"></use>
 						</svg></label>
 				</div>
 				<div v-show="options.tab==1" class="tab">
@@ -414,14 +440,14 @@
 						</div>
 						<div class="group">
 							<label><span>{{lang("font")}}:</span>
-								<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}">
+								<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}" @change="sizeChanged">
 									<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
 									<option value="Georgia,serif" style="font-family: Georgia,serif">Georgia</option>
 									<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
 								</select>
 							</label>
 							<label><span>{{lang("size")}}:</span>
-								<select v-model.number="options.fontSize">
+								<select v-model.number="options.fontSize" @change="sizeChanged">
 									<option value="12">12</option>
 									<option value="14">14</option>
 									<option value="16">16</option>
@@ -617,15 +643,23 @@
 					fontFamily: "Verdana,sans-serif",
 					theme: "#000000/#FFFFFF/#00AAFF",
 					figure: "transparent",
-					tab: 1
+					tab: 1,
+					pin: false
 				},
 				locale: navigator.language || navigator.userLanguage || "en",
 				translations: translations,
 				percent: 0,
 				currentChapter: 0,
-				filter: ""
+				filter: "",
+				scrollTop: 0
 			},
 			mounted() {
+
+				window.addEventListener('scroll', this.scroll);
+
+				window.addEventListener("hashchange", () => {
+					this.showNotes = true;
+				});
 
 				let query = SimpleIDB.initialize();
 				query.catch((error) => {
@@ -802,7 +836,7 @@
 							},
 							p: {
 								start(node) {
-									return "<p>"
+									return "<p class='mark'>"
 								},
 								end: "</p>"
 							},
@@ -819,19 +853,19 @@
 											that.book.chapters.push("");
 										}
 									}
-									return "<div class='title'>"
+									return "<div class='title mark'>"
 								},
 								end: "</div>"
 							},
 							subtitle: {
 								start(node) {
-									return "<div class='subtitle'>"
+									return "<div class='subtitle mark'>"
 								},
 								end: "</div>"
 							},
 							"empty-line": {
 								start(node) {
-									return "<div class='line'>"
+									return "<div class='line mark'>"
 								},
 								end: "</div>"
 							},
@@ -849,13 +883,13 @@
 							},
 							epigraph: {
 								start(node) {
-									return "<div class='epigraph'>"
+									return "<div class='epigraph mark'>"
 								},
 								end: "</div>"
 							},
 							cite: {
 								start(node) {
-									return "<blockquote>"
+									return "<blockquote class='mark'>"
 								},
 								end: "</blockquote>"
 							},
@@ -873,19 +907,19 @@
 							},
 							poem: {
 								start(node) {
-									return "<div class='poem'>"
+									return "<div class='poem mark'>"
 								},
 								end: "</div>"
 							},
 							stanza: {
 								start(node) {
-									return "<div class='stanza'>"
+									return "<div class='stanza mark'>"
 								},
 								end: "</div>"
 							},
 							v: {
 								start(node) {
-									return "<p>"
+									return "<p class='mark'>"
 								},
 								end: "</p>"
 							},
@@ -967,12 +1001,11 @@
 						let i = localStorage.getItem("fb2Reader_scroll" + this.book.hash);
 						this.$nextTick(function() {
 							setTimeout(() => {
-								let p = document.getElementsByTagName('p');
+								let p = document.querySelectorAll(".page .mark");
 								if (p.length > i) {
-									let scroll = p[i].offsetTop;
-									window.scrollTo(0, scroll);
+									p[i].scrollIntoView();
 								}
-							}, 500);
+							}, 100);
 						});
 					}
 				},
@@ -1005,6 +1038,33 @@
 				goChapter(i) {
 					let chapters = document.getElementsByClassName('title');
 					chapters[i].scrollIntoView();
+				},
+				sizeChanged(e) {
+					e.preventDefault();
+					this.restoreProgress();
+				},
+				scroll() {
+					this.hideNotes();
+					this.scrollPercent();
+					let p = document.querySelectorAll(".page .mark");
+					let wt = window.pageYOffset || document.documentElement.scrollTop;
+
+					for (let i = p.length - 1; i >= 0; i--) {
+						let bt = p[i].offsetTop;
+						if (bt <= wt) {
+							this.scrollTop = i + 1;
+							break;
+						}
+					}
+
+					let title = document.querySelectorAll(".page .title");
+					for (let j = title.length - 1; j >= 0; j--) {
+						let bt = title[j].offsetTop - 2 * this.options.fontSize;
+						if (bt <= wt) {
+							this.currentChapter = j;
+							break;
+						}
+					}
 				}
 			},
 			computed: {
@@ -1051,34 +1111,12 @@
 				chapters() {
 					return this.book.chapters.filter(z => z.toUpperCase().indexOf(this.filter.toUpperCase()) > -1);
 				}
-			}
-		});
-
-		window.addEventListener('scroll', function(e) {
-			app.hideNotes();
-			app.scrollPercent();
-			let p = document.getElementsByTagName('p');
-			let wt = window.pageYOffset || document.documentElement.scrollTop;
-			for (let i = 0; i < p.length; i++) {
-				let bt = p[i].offsetTop,
-					bb = bt + p[i].offsetHeight;
-				if (bt < wt && bb >= wt) {
-					localStorage.setItem("fb2Reader_scroll" + app.book.hash, i);
-					return true;
+			},
+			watch: {
+				scrollTop: function(val) {
+					localStorage.setItem("fb2Reader_scroll" + this.book.hash, val);
 				}
 			}
-			let title = document.querySelectorAll(".page .title");
-			for (let j = title.length-1; j >= 0; j--) {
-				let bt = title[j].offsetTop;
-				if (bt <= wt+1) {
-					app.currentChapter = j;
-					break;
-				}
-			}
-		});
-
-		window.addEventListener("hashchange", function() {
-			app.showNotes = true;
 		});
 	</script>
 </body>
