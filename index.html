@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
-
+<!--
+	License MIT - https://opensource.org/licenses/MIT
+	Copyright (c) 2021 Talleyran, me@talleyran.ru
+-->
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -1162,9 +1165,6 @@
 				},
 				chapters() {
 					return this.book.chapters.filter(z => z.toUpperCase().indexOf(this.filter.toUpperCase()) > -1);
-				},
-				hello() {
-					return this.lang("hello");
 				}
 			},
 			watch: {
