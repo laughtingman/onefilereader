@@ -329,7 +329,7 @@
 		}
 
 		.panel .chapter.active {
-			font-weight: 600;
+			text-shadow: 0 0 1px black;
 		}
 
 		.icon {
@@ -447,7 +447,7 @@
 				<div v-show="options.tab==2" class="tab">
 					<div class="scroll">
 						<ul class="chapters">
-							<li class="chapter" v-for="(chapter,i) in book.chapters" :class="{active:i==currentChapter}" @click="goChapter(i)"  v-show="chapter.deep>-1">
+							<li class="chapter" v-for="(chapter,i) in book.chapters" :class="{active:i==currentChapter}" @click="goChapter(i)"  v-show="chapter.deep>-1 && chapter.title!=''">
 								<span :style="{minWidth:chapter.deep + 'rem'}"></span>
 								<span>{{chapter.title}}</span>
 							</li>
