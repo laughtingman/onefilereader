@@ -152,6 +152,8 @@
 		.title {
 			font-weight: bold;
 			margin: 2em 0 1rem 0;
+			text-rendering: optimizeLegibility;
+			font-kerning: normal;
 		}
 
 		.title p {
@@ -307,27 +309,26 @@
 
 		.panel .chapter {
 			list-style: none;
+			display: flex;
 		}
 
 		.panel .chapter:empty {
 			display: none;
 		}
 
-		.panel .chapter a {
-			display: block;
+		.panel .chapter {
 			cursor: pointer;
 			color: black;
 			user-select: none;
 			padding: 0.3rem 0.5rem;
 		}
 
-		.panel .chapter a:hover,
-		.chapter a.active {
+		.panel .chapter:hover,
+		.chapter.active {
 			background-color: rgba(0, 0, 0, .1);
-
 		}
 
-		.panel .chapter a.active {
+		.panel .chapter.active {
 			font-weight: 600;
 		}
 
@@ -434,8 +435,9 @@
 							</div>
 						</div>
 						<div class="group">
-							<div>{{book.author.firstName}} {{book.author.lastName}}</div>
+							<div>{{book.author}}</div>
 							<div><b>{{book.title}}</b></div>
+							<div><i>{{book.sequence}}</i></div>
 						</div>
 						<div class="group">
 							<div v-html="book.annotation"></div>
@@ -443,13 +445,11 @@
 					</div>
 				</div>
 				<div v-show="options.tab==2" class="tab">
-					<div class="group">
-						<input type="search" v-model="filter">
-					</div>
 					<div class="scroll">
 						<ul class="chapters">
-							<li class="chapter" v-for="(chapter,i) in chapters">
-								<a @click="goChapter(i)" v-if="chapter.length" :class="{active:i==currentChapter}">{{chapter}}</a>
+							<li class="chapter" v-for="(chapter,i) in book.chapters" :class="{active:i==currentChapter}" @click="goChapter(i)"  v-show="chapter.deep>-1">
+								<span :style="{minWidth:chapter.deep + 'rem'}"></span>
+								<span>{{chapter.title}}</span>
 							</li>
 						</ul>
 					</div>
@@ -679,7 +679,7 @@
 				showNotes: false,
 				book: {
 					title: "",
-					author: {},
+					author: "",
 					cover: "",
 					main: "",
 					notes: "",
@@ -702,7 +702,6 @@
 				translations: translations,
 				percent: 0,
 				currentChapter: 0,
-				filter: "",
 				scrollTop: 0,
 				loading: true
 			},
@@ -812,9 +811,7 @@
 
 					let author = xml.getElementsByTagName("author")[0];
 					if (author != null) {
-						this.book.author.firstName = this.nodeText(author.getElementsByTagName("first-name")[0]);
-						this.book.author.lastName = this.nodeText(author.getElementsByTagName("last-name")[0]);
-						this.book.author.nickName = this.nodeText(author.getElementsByTagName("nick-name")[0]);
+						this.book.author = this.getFullNane(author);
 					}
 
 					this.book.cover = "";
@@ -834,12 +831,23 @@
 						}
 					}
 
-					this.book.annotation = "нет";
+					this.book.annotation = "";
+					this.book.sequence = "";
 
 					let annotation = xml.getElementsByTagName("annotation")[0];
 
 					if (annotation != null) {
 						this.book.annotation = this.parseNode(annotation, 1);
+					}
+
+					let sequence = xml.getElementsByTagName("sequence")[0];
+
+					if (sequence != null) {
+						let sequenceText = sequence.getAttribute("name");
+						if (sequence.getAttribute("number") != undefined) {
+							sequenceText += " №" + sequence.getAttribute("number");
+						}
+						this.book.sequence = sequenceText;
 					}
 
 					let bodys = xml.getElementsByTagName("body");
@@ -865,7 +873,15 @@
 
 					this.restoreProgress();
 				},
-				parseNode(node, i) {
+				getFullNane(node) {
+					let fullName = [];
+					fullName.push(this.nodeText(node.getElementsByTagName("first-name")[0]));
+					fullName.push(this.nodeText(node.getElementsByTagName("middle-name")[0]));
+					fullName.push(this.nodeText(node.getElementsByTagName("last-name")[0]));
+					fullName.push(this.nodeText(node.getElementsByTagName("nick-name")[0]));
+					return fullName.join(" ");
+				},
+				parseNode(node, i, deep = -2) {
 					output = "";
 
 					if (node.nodeType == 1) {
@@ -905,9 +921,13 @@
 									}
 									if (i == 0) {
 										if (node.parentNode.nodeName != "body") {
-											that.book.chapters.push(title.join(" - "));
+											let chapter = {
+												deep: deep,
+												title: title.join(" - ")
+											};
+											that.book.chapters.push(chapter);
 										} else {
-											that.book.chapters.push("");
+											that.book.chapters.push({deep:-1,title:""});
 										}
 									}
 									return "<div class='title mark'>"
@@ -1021,7 +1041,7 @@
 
 							if (end != "") {
 								for (let childNode of node.childNodes) {
-									output += this.parseNode(childNode, i);
+									output += this.parseNode(childNode, i, deep+1);
 								}
 								output += end;
 							}
@@ -1164,9 +1184,6 @@
 							background-color: ${this.options.figure};
 						}
 						</style>`;
-				},
-				chapters() {
-					return this.book.chapters.filter(z => z.toUpperCase().indexOf(this.filter.toUpperCase()) > -1);
 				}
 			},
 			watch: {
