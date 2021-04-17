@@ -15,6 +15,7 @@ Extreamly light FB2 reader in one html file
 1. Store current book and reading progress in localStorage (and indexedDB for large books over 5MB)
 1. Automatic add non-breaking spaces for more comfortable
 1. Show active table of contents with highlighting of the current chapter
+1. Add bookmarks to any paragraph
 
 
 ## Dependencies
