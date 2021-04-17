@@ -111,6 +111,7 @@
 			font-size: 16px;
 			margin: 0;
 			padding: 0;
+			overflow-x: hidden;
 		}
 
 		.book {
@@ -121,6 +122,12 @@
 			max-width: 40em;
 			margin: 0 auto;
 			padding-top: 2em;
+			padding-right: 2rem;
+			padding-left: 0.5rem;
+		}
+
+		.page.left {
+			padding-left: 16.5rem;
 		}
 
 		.body {
@@ -568,7 +575,7 @@
 			<div class="loading" v-if="loading"><svg class="icon icon-spinner">
 					<use xlink:href="#icon-spinner"></use>
 				</svg> {{lang('loading')}}</div>
-			<div v-html="book.main" class="page"></div>
+			<div v-html="book.main" class="page" :class="{left:options.pin}"></div>
 			<div class="notes" :class="{show:showNotes}">
 				<button class="close" @click="hideNotes">&times;</button>
 				<div v-html="book.notes" class="scroll"></div>
