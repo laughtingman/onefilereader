@@ -157,7 +157,6 @@
 			font-size: 1em;
 			line-height: 1.5em;
 			margin: 1em 0;
-			text-indent: 1.5em;
 		}
 
 		img {
@@ -445,7 +444,7 @@
 
 		p.mark:before {
 			position: sticky;
-			display: inline-block;
+			float: right;
 			content: "";
 			border: 12px solid currentColor;
 			border-bottom-color: transparent;
@@ -478,10 +477,6 @@
 		figure.float img {
 			display: inline;
 			margin: 0;
-		}
-
-		blockquote p {
-			text-indent: 0.5rem;
 		}
 
 		p.dialogue+p.dialogue {
