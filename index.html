@@ -13,7 +13,9 @@
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.min.js' integrity='sha512-deBbW1lpMT6h3gvOzmeMPft4pf9CMGjCKc5jSNq2pMSjtkMPuELbd4N3LKXVq/t1t6qco4q3u/XguyqGqlOMjA==' crossorigin='anonymous'></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js' integrity='sha512-y3o0Z5TJF1UsKjs/jS2CDkeHN538bWsftxO9nctODL5W40nyXIbs0Pgyu7//icrQY9m6475gLaVr39i/uh/nLA==' crossorigin='anonymous'></script>
 	<link rel="shortcut icon" href="data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3Csvg version='1.1' id='icon' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 296.999 296.999' style='enable-background:new 0 0 296.999 296.999;' xml:space='preserve'%3E%3Cg%3E%3Cg%3E%3Cg%3E%3Cpath d='M45.432,35.049c-0.008,0-0.017,0-0.025,0c-2.809,0-5.451,1.095-7.446,3.085c-2.017,2.012-3.128,4.691-3.128,7.543 v159.365c0,5.844,4.773,10.61,10.641,10.625c24.738,0.059,66.184,5.215,94.776,35.136V84.023c0-1.981-0.506-3.842-1.461-5.382 C115.322,40.849,70.226,35.107,45.432,35.049z'/%3E%3Cpath d='M262.167,205.042V45.676c0-2.852-1.111-5.531-3.128-7.543c-1.995-1.99-4.639-3.085-7.445-3.085c-0.009,0-0.018,0-0.026,0 c-24.793,0.059-69.889,5.801-93.357,43.593c-0.955,1.54-1.46,3.401-1.46,5.382v166.779 c28.592-29.921,70.038-35.077,94.776-35.136C257.394,215.651,262.167,210.885,262.167,205.042z'/%3E%3Cpath d='M286.373,71.801h-7.706v133.241c0,14.921-12.157,27.088-27.101,27.125c-20.983,0.05-55.581,4.153-80.084,27.344 c42.378-10.376,87.052-3.631,112.512,2.171c3.179,0.724,6.464-0.024,9.011-2.054c2.538-2.025,3.994-5.052,3.994-8.301V82.427 C297,76.568,292.232,71.801,286.373,71.801z'/%3E%3Cpath d='M18.332,205.042V71.801h-7.706C4.768,71.801,0,76.568,0,82.427v168.897c0,3.25,1.456,6.276,3.994,8.301 c2.545,2.029,5.827,2.78,9.011,2.054c25.46-5.803,70.135-12.547,112.511-2.171c-24.502-23.19-59.1-27.292-80.083-27.342 C30.49,232.13,18.332,219.963,18.332,205.042z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A" type="image/svg+xml">
-
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 	<style>
 		.panel,
 		.tab,
@@ -53,6 +55,21 @@
 			overflow-x: hidden;
 			width: 100%;
 			height: 100%;
+		}
+
+		.panel .empty {
+			color: gray;
+			padding: 0.5rem;
+			text-align: center;
+			display: none;
+		}
+
+		.chapters:empty + .empty {
+			display: block;
+		}
+
+		.bookmarks:empty + .empty {
+			display: block;
 		}
 
 		.panel:after {
@@ -124,6 +141,8 @@
 			padding-top: 2em;
 			padding-right: 2rem;
 			padding-left: 0.5rem;
+			transition-duration: 0.5s;
+			transition-property: padding;
 		}
 
 		.page.left {
@@ -216,13 +235,13 @@
 
 		.notes {
 			position: fixed;
-			max-width: 40em;
+			max-width: 42em;
 			height: 30vh;
 			left: 0;
 			right: 0;
 			bottom: -31vh;
 			margin: 0 auto;
-			transition-property: bottom;
+			transition-property: bottom left;
 			transition-duration: 0.5s;
 		}
 
@@ -241,6 +260,7 @@
 
 		.notes p {
 			font-size: 0.8em;
+			text-indent: 0;
 		}
 
 		.notes .title p {
@@ -265,6 +285,10 @@
 			padding-right: 0.2em;
 		}
 
+		.notes.left {
+			left: 16.5rem;
+		}
+
 		.panel .statusbar {
 			background: rgba(0, 0, 0, 0.1);
 		}
@@ -275,14 +299,14 @@
 
 		.panel .tabs {
 			display: flex;
+			background-color: #dbdbdb;
 		}
 
 		.panel .tabs input {
-			display: none
+			display: none;
 		}
 
 		.panel .tabs label {
-			background-color: rgba(0, 0, 0, .1);
 			padding: 0.5rem;
 			margin: 0;
 			width: 100%;
@@ -292,7 +316,7 @@
 		}
 
 		.panel .tabs input:checked+label {
-			background-color: transparent;
+			background-color: white;
 		}
 
 		.panel .tabs input:checked+label:not(:last-of-type) {
@@ -310,7 +334,7 @@
 		}
 
 		.panel .tabs input:checked+label.pin {
-			background-color: rgba(1, 1, 1, .1);
+			background-color: transparent !important;
 			color: rgba(0, 170, 255);
 		}
 
@@ -374,17 +398,29 @@
 		}
 
 		.loading {
+			font-size: 1em;
+			font-family: Verdana, Geneva, Tahoma, sans-serif;
+			transition-property: left;
+			transition-duration: 0.5s;
 			position: fixed;
 			top: 0;
 			left: 0;
 			bottom: 0;
 			right: 0;
 			margin: auto;
-			width: 200px;
-			height: 200px;
+			width: 41.5em;
+			text-align: center;
+			padding-top: 5rem;
+			height: 100vh;
 			display: flex;
-			align-items: center;
+			background-color: inherit;
 			justify-content: center;
+			color: inherit;
+			z-index: 1;
+		}
+
+		.loading.left {
+			left: 16.5rem;
 		}
 
 		.loading svg {
@@ -502,11 +538,12 @@
 				<div v-show="options.tab==2" class="tab">
 					<div class="scroll">
 						<ul class="chapters">
-							<li class="chapter" v-for="(chapter,i) in book.chapters" :class="{active:i==currentChapter}" @click="goChapter(i)" v-show="chapter.deep>-1 && chapter.title!=''">
+							<li class="chapter" v-for="(chapter,i) in book.chapters" :class="{active:i==currentChapter}" @click="goChapter(i)" v-if="chapter.deep>-1 && chapter.title!=''">
 								<span :style="{minWidth:chapter.deep + 'rem'}"></span>
 								<span>{{chapter.title}}</span>
 							</li>
 						</ul>
+						<div class="empty">{{lang("notitle")}}</div>
 					</div>
 				</div>
 				<div v-show="options.tab==3" class="tab">
@@ -517,6 +554,7 @@
 								<span>&sect;&nbsp;{{bookmark.number}}</span>
 							</li>
 						</ul>
+						<div class="empty">{{lang("nobookmarks")}}</div>
 					</div>
 				</div>
 				<div v-show="options.tab==4" class="tab">
@@ -548,11 +586,12 @@
 						<div class="group">
 							<label><span>{{lang("font")}}:</span>
 								<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}" @change="sizeChanged">
+									<option value="Roboto,sans-serif" style="font-family: Roboto,sans-serif">Roboto</option>
 									<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
 									<option value="Helvetica,sans-serif" style="font-family: Helvetica,sans-serif">Helvetica</option>
 									<option value="Georgia,serif" style="font-family: Georgia,serif">Georgia</option>
 									<option value="'Times New Roman',serif" style="font-family:'Times New Roman',serif">Times New Roman</option>
-									<option value="Garamond,serif" style="font-family:Garamond,serif">Garamond</option>
+									<option value="'EB Garamond',serif" style="font-family:'EB Garamond',serif">Garamond</option>
 								</select>
 							</label>
 							<label><span>{{lang("size")}}:</span>
@@ -561,6 +600,8 @@
 									<option value="14">14</option>
 									<option value="16">16</option>
 									<option value="18">18</option>
+									<option value="20">20</option>
+									<option value="22">22</option>
 									<option value="24">24</option>
 								</select>
 							</label>
@@ -572,11 +613,11 @@
 			<div class="hello" v-if="book.main==''"><svg class="icon">
 					<use xlink:href="#icon-book"></use>
 				</svg></div>
-			<div class="loading" v-if="loading"><svg class="icon icon-spinner">
+			<div class="loading" v-if="loading" :class="{left:options.pin}"><svg class="icon icon-spinner">
 					<use xlink:href="#icon-spinner"></use>
 				</svg> {{lang('loading')}}</div>
 			<div v-html="book.main" class="page" :class="{left:options.pin}"></div>
-			<div class="notes" :class="{show:showNotes}">
+			<div class="notes" :class="{'show':showNotes,'left':options.pin}">
 				<button class="close" @click="hideNotes">&times;</button>
 				<div v-html="book.notes" class="scroll"></div>
 			</div>
@@ -737,7 +778,17 @@
 				id: "loading",
 				"ru": "Загрузка...",
 				"en": "Loading..."
-			}
+			},
+			{
+				id: "notitle",
+				"ru": "Нет оглавления",
+				"en": "No titles"
+			},
+			{
+				id: "nobookmarks",
+				"ru": "Нет закладок",
+				"en": "No bookmarks"
+			},
 
 		];
 
@@ -823,6 +874,7 @@
 					let fileInput = div.firstChild;
 					fileInput.addEventListener('change', function() {
 						let file = fileInput.files[0];
+						that.loading = true;
 						if (file.name.match(/\.(fb2)$/)) {
 
 							let reader = new FileReader();
@@ -848,6 +900,7 @@
 						} else {
 							error();
 							div.remove();
+							that.loading = false;
 						}
 					});
 					fileInput.click();
@@ -865,12 +918,15 @@
 							text = decoder.decode(buffer);
 							xml = parser.parseFromString(text, "text/xml");
 						}
+						this.loading = false;
 					} catch {
 						alert(this.lang("broken_book"));
+						this.loading = false;
 						return;
 					}
 					if (xml.getElementsByTagName("FictionBook").length == 0) {
 						alert(this.lang("broken_book"));
+						this.loading = false;
 						return;
 					}
 
@@ -981,7 +1037,7 @@
 							},
 							p: {
 								start(node) {
-									return "<p class='mark'>"
+									return (i==0) ? "<p class='mark'>" : "<p>";
 								},
 								end: "</p>"
 							},
@@ -992,18 +1048,10 @@
 										title.push(p.childNodes[0].nodeValue);
 									}
 									if (i == 0) {
-										if (node.parentNode.nodeName != "body") {
-											let chapter = {
-												deep: deep,
-												title: title.join(" - ")
-											};
-											that.book.chapters.push(chapter);
-										} else {
-											that.book.chapters.push({
-												deep: -1,
-												title: ""
-											});
-										}
+										that.book.chapters.push({
+											deep: deep,
+											title: title.join(" - ")
+										});
 									}
 									return "<div class='title mark'>"
 								},
