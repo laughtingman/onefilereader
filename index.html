@@ -965,7 +965,7 @@
 					let annotation = xml.getElementsByTagName("annotation")[0];
 
 					if (annotation != null) {
-						this.book.annotation = this.parseNode(annotation, 1);
+						this.book.annotation = this.parseNode(annotation, 1, false);
 					}
 
 					let sequence = xml.getElementsByTagName("sequence")[0];
