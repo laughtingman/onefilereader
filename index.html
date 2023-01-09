@@ -157,7 +157,7 @@
 			font-size: 1em;
 			line-height: 1.5em;
 			margin: 1em 0;
-			text-indent: 2.5em;
+			text-indent: 1.5em;
 		}
 
 		img {
@@ -465,6 +465,27 @@
 
 		a {
 			text-decoration: none;
+		}
+
+		.annotation {
+			font-size: 0.75rem;
+		}
+
+		figure.float {
+			display: inline;
+		}
+
+		figure.float img {
+			display: inline;
+			margin: 0;
+		}
+
+		blockquote p {
+			text-indent: 0.5rem;
+		}
+
+		p.dialogue+p.dialogue {
+				margin-top:-1em;
 		}
 	</style>
 </head>
@@ -965,7 +986,7 @@
 					let annotation = xml.getElementsByTagName("annotation")[0];
 
 					if (annotation != null) {
-						this.book.annotation = this.parseNode(annotation, 1, false);
+						this.book.annotation = this.parseNode(annotation, 1);
 					}
 
 					let sequence = xml.getElementsByTagName("sequence")[0];
@@ -1009,7 +1030,7 @@
 					fullName.push(this.nodeText(node.getElementsByTagName("nick-name")[0]));
 					return fullName.join(" ");
 				},
-				parseNode(node, i, deep = -2, typo=true) {
+				parseNode(node, i, deep = -2) {
 					output = "";
 
 					if (node.nodeType == 1) {
@@ -1037,7 +1058,12 @@
 							},
 							p: {
 								start(node) {
-									return (i==0) ? "<p class='mark'>" : "<p>";
+									if (node.textContent[0]=="—" ||node.textContent[0]=="–") {
+										return "<p class='mark dialogue'>";
+									} else {
+										return (i==0) ? "<p class='mark'>" : "<p>";
+									}
+									
 								},
 								end: "</p>"
 							},
@@ -1141,7 +1167,7 @@
 									if (binary != null) {
 										let type = binary.getAttribute("content-type");
 										let base64 = binary.childNodes[0].nodeValue;
-										return `<figure><img src="data:${type};base64,${base64}"></figure>`
+										return `<figure><img src="data:${type};base64,${base64}" onload="app.loadImage(event)"></figure>`
 									} else {
 										return "";
 									}
@@ -1182,7 +1208,7 @@
 					} else if (node.nodeType == 3) {
 						let text = node.nodeValue;
 
-						if (!typo && node.parentNode.nodeName == "p" && node.parentNode.parentNode.nodeName == "title") {
+						if (node.parentNode.nodeName == "p" && node.parentNode.parentNode.name == "title") {
 							//nothing
 						} else {
 							text = text.replace(/(\s)(\S+)$/gm, "&nbsp;$2");
@@ -1341,6 +1367,12 @@
 				goBookmark(number) {
 					let marks = document.querySelectorAll(".page p.mark");
 					marks[number].scrollIntoView();
+				},
+				loadImage(event) {
+					let width = event.target.naturalWidth, height = event.target.naturalHeight;
+					if (width != undefined && width<300 && height !=undefined && height < 300) {
+						event.target.parentNode.classList.add("float");
+					}
 				}
 			},
 			computed: {
