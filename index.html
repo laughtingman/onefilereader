@@ -1009,7 +1009,7 @@
 					fullName.push(this.nodeText(node.getElementsByTagName("nick-name")[0]));
 					return fullName.join(" ");
 				},
-				parseNode(node, i, deep = -2) {
+				parseNode(node, i, deep = -2, typo=true) {
 					output = "";
 
 					if (node.nodeType == 1) {
@@ -1182,7 +1182,7 @@
 					} else if (node.nodeType == 3) {
 						let text = node.nodeValue;
 
-						if (node.parentNode.nodeName == "p" && node.parentNode.parentNode.nodeName == "title") {
+						if (!typo && node.parentNode.nodeName == "p" && node.parentNode.parentNode.nodeName == "title") {
 							//nothing
 						} else {
 							text = text.replace(/(\s)(\S+)$/gm, "&nbsp;$2");
