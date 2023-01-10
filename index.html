@@ -484,11 +484,12 @@
 		}
 
 		figure.float {
-			display: inline;
+			display: inline-block;
+			margin: 0;
 		}
 
 		figure.float img {
-			display: inline;
+			display: inline-block;
 			margin: 0;
 		}
 
@@ -1348,14 +1349,17 @@
 							},
 							image: {
 								start(node) {
-
+									let nextnode = node.nextSibling, cls="";
+									if (nextnode != null && nextnode.nodeType==3) {
+										cls="float";
+									}
 									let id = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 									id = id.replace(/#/g, '');
 									let binary = that.xml.getElementById(id);
 									if (binary != null) {
 										let type = binary.getAttribute("content-type");
 										let base64 = binary.childNodes[0].nodeValue;
-										return `<figure><img src="data:${type};base64,${base64}" onload="app.loadImage(event)"></figure>`
+										return `<figure class="${cls}"><img src="data:${type};base64,${base64}"></figure>`
 									} else {
 										return "";
 									}
@@ -1562,13 +1566,6 @@
 					let marks = document.querySelectorAll(".page p.mark");
 					marks[number].scrollIntoView();
 				},
-				loadImage(event) {
-					let width = event.target.naturalWidth,
-						height = event.target.naturalHeight;
-					if (width != undefined && width < 300 && height != undefined && height < 300) {
-						event.target.parentNode.classList.add("float");
-					}
-				},
 				close() {
 					if (confirm(this.lang("remove_confirm"))) {
 						localStorage.removeItem("fb2Reader_scroll" + this.book.hash);
@@ -1633,11 +1630,11 @@
 							background-color: ${this.options.figure};
 						}
 
-						p {
+						section {
 							text-align: ${this.options.textAlign}
 						}
 
-						.body p {
+						.body section>p {
 							text-indent: ${this.options.textIndent}em;
 							margin: ${this.options.paraIndent}em 0;
 						}
