@@ -64,11 +64,11 @@
 			display: none;
 		}
 
-		.chapters:empty + .empty {
+		.chapters:empty+.empty {
 			display: block;
 		}
 
-		.bookmarks:empty + .empty {
+		.bookmarks:empty+.empty {
 			display: block;
 		}
 
@@ -124,6 +124,12 @@
 			box-sizing: border-box;
 		}
 
+		.panel input[type=checkbox] {
+			width: 1rem;
+			height: 1rem;
+			margin-right: 0.5rem;
+		}
+
 		body {
 			font-size: 16px;
 			margin: 0;
@@ -156,7 +162,6 @@
 		p {
 			font-size: 1em;
 			line-height: 1.5em;
-			margin: 1em 0;
 		}
 
 		img {
@@ -305,6 +310,10 @@
 			display: none;
 		}
 
+		.panel label {
+			user-select: none;
+		}
+
 		.panel .tabs label {
 			padding: 0.5rem;
 			margin: 0;
@@ -388,6 +397,10 @@
 			fill: currentColor;
 		}
 
+		label .icon {
+			width: 2rem;
+		}
+
 		.panel img {
 			width: 100%;
 		}
@@ -451,7 +464,7 @@
 			height: 0.5rem;
 			margin-right: -2rem;
 			margin-bottom: -0.5rem;
-			top:0.5rem;
+			top: 0.5rem;
 			left: 100%;
 			opacity: 0;
 			transition-property: opacity;
@@ -479,8 +492,40 @@
 			margin: 0;
 		}
 
-		p.dialogue+p.dialogue {
-				margin-top:-1em;
+		.btn-group {
+			display: flex;
+			gap: 1rem;
+		}
+
+		.switch {
+			display: flex;
+			margin-top: 0.3rem;
+		}
+
+		.switch input {
+			visibility: hidden;
+			width: 0;
+			height: 0;
+		}
+
+		.switch input:checked+label {
+			background-color: #ccc;
+		}
+
+		.switch label {
+			width: 100%;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid gray;
+			border-radius: 2px;
+			background-color: buttonface;
+			padding: 0.1rem 0;
+		}
+
+		.switch label:hover {
+
+			border: 1px solid #333;
 		}
 	</style>
 </head>
@@ -507,6 +552,51 @@
 		<symbol id="icon-bookmark" viewBox="0 0 24 24">
 			<path d="M17.016 3q0.797 0 1.383 0.609t0.586 1.406v15.984l-6.984-3-6.984 3v-15.984q0-0.797 0.586-1.406t1.383-0.609h10.031z"></path>
 		</symbol>
+		<symbol id="icon-palette" viewBox="0 0 24 24">
+			<path d="M17.484 12q0.609 0 1.055-0.422t0.445-1.078-0.445-1.078-1.055-0.422-1.055 0.422-0.445 1.078 0.445 1.078 1.055 0.422zM14.484 8.016q0.609 0 1.055-0.445t0.445-1.055-0.445-1.055-1.055-0.445-1.055 0.445-0.445 1.055 0.445 1.055 1.055 0.445zM9.516 8.016q0.609 0 1.055-0.445t0.445-1.055-0.445-1.055-1.055-0.445-1.055 0.445-0.445 1.055 0.445 1.055 1.055 0.445zM6.516 12q0.609 0 1.055-0.422t0.445-1.078-0.445-1.078-1.055-0.422-1.055 0.422-0.445 1.078 0.445 1.078 1.055 0.422zM12 3q3.703 0 6.352 2.344t2.648 5.672q0 2.063-1.477 3.516t-3.539 1.453h-1.734q-0.656 0-1.078 0.445t-0.422 1.055q0 0.516 0.375 0.984t0.375 1.031q0 0.656-0.422 1.078t-1.078 0.422q-3.75 0-6.375-2.625t-2.625-6.375 2.625-6.375 6.375-2.625z"></path>
+		</symbol>
+		<symbol id="icon-font" viewBox="0 0 32 32">
+			<path d="M24.987 0.506c-2.829 0-4.644-0.506-7.558-0.506-9.415 0-13.806 5.362-13.806 10.809 0 3.209 1.52 4.264 4.518 4.264-0.211-0.464-0.591-0.971-0.591-3.251 0-6.375 2.406-8.233 5.489-8.36 0 0-2.529 24.793-9.868 27.767v0.771h9.894l3.376-16h6.183l1.377-4h-6.716l1.623-7.693c1.858 0.38 3.673 0.76 5.235 0.76 1.942 0 3.715-0.591 4.686-5.066-1.182 0.38-2.449 0.506-3.842 0.506z"></path>
+		</symbol>
+		<symbol id="icon-font-size" viewBox="0 0 32 32">
+			<path d="M28 24h4l-5 6-5-6h4v-16h-4l5-6 5 6h-4zM20 2v8l-2-4h-6v22h4v2h-12v-2h4v-22h-6l-2 4v-8z"></path>
+		</symbol>
+		<symbol id="icon-link-color" viewBox="0 0 24 24">
+			<path d="M0 20.016h24v3.984h-24z"></path>
+			<path d="M10.796 10.722c-0.217 0-0.433-0.085-0.598-0.254-1.548-1.584-1.548-4.161 0-5.746l3.125-3.197c0.75-0.767 1.747-1.19 2.808-1.19s2.058 0.423 2.808 1.19c1.548 1.584 1.548 4.161 0 5.746l-1.429 1.462c-0.331 0.338-0.866 0.338-1.197 0s-0.331-0.886 0-1.224l1.429-1.462c0.888-0.909 0.888-2.388 0-3.297-0.43-0.44-1.003-0.683-1.611-0.683s-1.181 0.242-1.611 0.683l-3.125 3.197c-0.888 0.909-0.888 2.388 0 3.297 0.331 0.338 0.331 0.886 0 1.224-0.165 0.169-0.382 0.254-0.598 0.254z"></path>
+			<path d="M7.798 16.987c-1.061 0-2.058-0.423-2.808-1.19-1.548-1.584-1.548-4.161 0-5.746l1.429-1.462c0.331-0.338 0.867-0.338 1.197 0s0.331 0.886 0 1.224l-1.429 1.462c-0.888 0.909-0.888 2.388 0 3.297 0.43 0.44 1.003 0.683 1.611 0.683s1.181-0.242 1.611-0.683l3.125-3.197c0.888-0.909 0.888-2.388 0-3.297-0.331-0.338-0.331-0.886 0-1.224s0.866-0.338 1.197 0c1.548 1.584 1.548 4.161 0 5.746l-3.125 3.197c-0.75 0.767-1.747 1.19-2.808 1.19z"></path>
+		</symbol>
+		<symbol id="icon-text-color" viewBox="0 0 24 24">
+			<path d="M0 20.016h24v3.984h-24z"></path>
+			<path d="M20.368 0.159v6.695l-1.674-3.347h-5.021v11.716h3.347v1.674h-10.042v-1.674h3.347v-11.716h-5.021l-1.674 3.347v-6.695z"></path>
+		</symbol>
+		<symbol id="icon-bg-color" viewBox="0 0 24 24">
+			<path d="M0 20.016h24v3.984h-24v-3.984zM18.984 11.484q2.016 2.203 2.016 3.516 0 0.797-0.609 1.406t-1.406 0.609-1.383-0.609-0.586-1.406q0-0.563 0.492-1.453t0.961-1.453zM5.203 9.984h9.609l-4.828-4.781zM16.547 8.953q0.469 0.469 0.469 1.078t-0.469 1.031l-5.484 5.484q-0.469 0.469-1.078 0.469-0.563 0-1.031-0.469l-5.531-5.484q-0.422-0.422-0.422-1.078 0-0.609 0.422-1.031l5.156-5.156-2.391-2.391 1.453-1.406z"></path>
+		</symbol>
+		<symbol id="icon-text-indent" viewBox="0 0 32 32">
+			<path d="M7.201 6.091h22.151v2.373h-22.151v-2.373z"></path>
+			<path d="M2.422 11.967h26.93v2.373h-26.93v-2.373z"></path>
+			<path d="M7.201 17.844h22.151v2.373h-22.151v-2.373z"></path>
+			<path d="M2.422 23.72h26.93v2.373h-26.93v-2.373z"></path>
+		</symbol>
+		<symbol id="icon-para-indent" viewBox="0 0 32 32">
+			<path d="M2.375 4.091h26.977v2.373h-26.977v-2.373z"></path>
+			<path d="M2.422 9.967h26.93v2.373h-26.93v-2.373z"></path>
+			<path d="M2.415 19.844h26.937v2.373h-26.937v-2.373z"></path>
+			<path d="M2.422 25.72h26.93v2.373h-26.93v-2.373z"></path>
+		</symbol>
+		<symbol id="icon-align-justify" viewBox="0 0 32 32">
+			<path d="M2.375 4.091h26.977v2.373h-26.977v-2.373z"></path>
+			<path d="M2.422 11.3h26.93v2.373h-26.93v-2.373z"></path>
+			<path d="M2.415 18.51h26.937v2.373h-26.937v-2.373z"></path>
+			<path d="M2.422 25.72h26.93v2.373h-26.93v-2.373z"></path>
+		</symbol>
+		<symbol id="icon-align-left" viewBox="0 0 32 32">
+			<path d="M2.375 4.091h26.977v2.373h-26.977v-2.373z"></path>
+			<path d="M2.422 11.3h19.714v2.373h-19.714v-2.373z"></path>
+			<path d="M2.415 18.51h23.581v2.373h-23.581v-2.373z"></path>
+			<path d="M2.422 25.72h26.93v2.373h-26.93v-2.373z"></path>
+		</symbol>
 	</svg>
 
 	<div id="app">
@@ -531,10 +621,11 @@
 						</svg></label>
 				</div>
 				<div v-show="options.tab==1" class="tab">
-					<div class="group">
+					<div class="group btn-group">
 						<button class="btn" @click="open">{{lang("open")}}</button>
+						<button class="btn" @click="close" :disabled="book.hash==''">{{lang("close")}}</button>
 					</div>
-					<div class="scroll">
+					<div class="scroll" v-if="book.hash!=''">
 						<div class="group">
 							<img :src="book.cover">
 							<div class="statusbar">
@@ -576,7 +667,9 @@
 				<div v-show="options.tab==4" class="tab">
 					<div class="scroll">
 						<div class="group">
-							<label><span>{{lang("theme")}}:</span>
+							<label :title="lang('theme')"><svg class="icon">
+									<use xlink:href="#icon-palette"></use>
+								</svg>
 								<select @change="theme" v-model="options.theme" :style="{color:options.color,backgroundColor:options.background}">
 									<option value="#000000/#FFFFFF/#00AAFF" style="color:#000000;background:#FFFFFF">Black on white</option>
 									<option value="#111111/#FFFad6/#AD6410" style="color:#111111;background:#FFFad6">Grey on yellow</option>
@@ -587,20 +680,25 @@
 							</label>
 						</div>
 						<div class="group" v-if="options.theme=='custom'">
-							<label><span>{{lang("text")}}:</span><input type="color" v-model="options.color"></label>
-							<label><span>{{lang("background")}}:</span><input type="color" v-model="options.background"></label>
-							<label><span>{{lang("links")}}:</span><input type="color" v-model="options.links"></label>
+							<label :title="lang('text')"><svg class="icon">
+									<use xlink:href="#icon-text-color"></use>
+								</svg><input type="color" v-model="options.color"></label>
+							<label :title="lang('background')"><svg class="icon">
+									<use xlink:href="#icon-bg-color"></use>
+								</svg><input type="color" v-model="options.background"></label>
+							<label :title="lang('links')"><svg class="icon">
+									<use xlink:href="#icon-link-color"></use>
+								</svg><input type="color" v-model="options.links"></label>
 						</div>
 						<div class="group">
-							<label><span>{{lang("imgbg")}}:</span>
-								<select v-model="options.figure">
-									<option value="transparent">Transparent</option>
-									<option value="white">White</option>
-								</select>
+							<label>
+								<input type="checkbox" true-value="white" false-value="transparent" v-model="options.figure">{{lang("white")}}
 							</label>
 						</div>
 						<div class="group">
-							<label><span>{{lang("font")}}:</span>
+							<label :title="lang('font')"><svg class="icon">
+									<use xlink:href="#icon-font"></use>
+								</svg>
 								<select v-model="options.fontFamily" :style="{fontFamily:options.fontFamily}" @change="sizeChanged">
 									<option value="Roboto,sans-serif" style="font-family: Roboto,sans-serif">Roboto</option>
 									<option value="Verdana,sans-serif" style="font-family: Verdana,sans-serif">Verdana</option>
@@ -610,7 +708,9 @@
 									<option value="'EB Garamond',serif" style="font-family:'EB Garamond',serif">Garamond</option>
 								</select>
 							</label>
-							<label><span>{{lang("size")}}:</span>
+							<label :title="lang('size')"><svg class="icon">
+									<use xlink:href="#icon-font-size"></use>
+								</svg>
 								<select v-model.number="options.fontSize" @change="sizeChanged">
 									<option value="12">12</option>
 									<option value="14">14</option>
@@ -621,6 +721,51 @@
 									<option value="24">24</option>
 								</select>
 							</label>
+							<div class="switch">
+								<input id="align-left" type="radio" value="left" v-model="options.textAlign" @change="sizeChanged">
+								<label for="align-left">
+									<svg class="icon">
+										<use xlink:href="#icon-align-left"></use>
+									</svg>
+								</label>
+								<input id="align-justify" type="radio" value="justify" v-model="options.textAlign" @change="sizeChanged">
+								<label for="align-justify">
+									<svg class="icon">
+										<use xlink:href="#icon-align-justify"></use>
+									</svg>
+								</label>
+							</div>
+						</div>
+						<div class="group">
+							<label :title="lang('text_indent')">
+								<svg class="icon">
+									<use xlink:href="#icon-text-indent"></use>
+								</svg>
+								<select v-model.number="options.textIndent" @change="sizeChanged">
+									<option value="0">0</option>
+									<option value="0.5">0.5</option>
+									<option value="1">1</option>
+									<option value="1.5">1.5</option>
+									<option value="2">2</option>
+									<option value="2.5">2.5</option>
+									<option value="3">3</option>
+								</select>
+							</label>
+							<label :title="lang('para_indent')">
+								<svg class="icon">
+									<use xlink:href="#icon-para-indent"></use>
+								</svg>
+								<select v-model.number="options.paraIndent" @change="sizeChanged">
+									<option value="0">0</option>
+									<option value="0.5">0.5</option>
+									<option value="1">1</option>
+									<option value="1.5">1.5</option>
+									<option value="2">2</option>
+									<option value="2.5">2.5</option>
+									<option value="3">3</option>
+								</select>
+							</label>
+							<label v-if="options.paraIndent>0" for="merge_dialogues"><input type="checkbox" id="merge_dialogues" v-model="options.mergeDialogues">{{lang("merge_dialogues")}}</label>
 						</div>
 					</div>
 				</div>
@@ -767,7 +912,7 @@
 			},
 			{
 				id: "size",
-				"ru": "Размер",
+				"ru": "Размер шрифта",
 				"en": "Font size"
 			},
 			{
@@ -805,6 +950,36 @@
 				"ru": "Нет закладок",
 				"en": "No bookmarks"
 			},
+			{
+				id: "close",
+				"ru": "Очистить",
+				"en": "Clear"
+			},
+			{
+				id: "remove_confirm",
+				"ru": "Точно удалить книгу, прогресс чтения и закладки из памяти браузера?",
+				"en": "Realy clear book, progress and bookmarks from the browser storage?"
+			},
+			{
+				id: "merge_dialogues",
+				"ru": "Объединять диалоги",
+				"en": "Merge dialogues"
+			},
+			{
+				id: "white",
+				"ru": "Белый фон картинок",
+				"en": "White"
+			},
+			{
+				id: "text_indent",
+				"ru": "Отступ первой строки",
+				"en": "First line indent"
+			},
+			{
+				id: "para_indent",
+				"ru": "Отступ между параграфами",
+				"en": "Vertical indent"
+			}
 
 		];
 
@@ -832,7 +1007,9 @@
 					theme: "#000000/#FFFFFF/#00AAFF",
 					figure: "transparent",
 					tab: 1,
-					pin: false
+					pin: false,
+					textIndent: 0,
+					paraIndent: 0
 				},
 				locale: navigator.language || navigator.userLanguage || "en",
 				translations: translations,
@@ -873,6 +1050,22 @@
 
 				if (localStorage['fb2Reader_options']) {
 					this.options = JSON.parse(localStorage['fb2Reader_options']);
+
+					if (this.options.textIndent == undefined) {
+						this.options.textIndent = 0;
+					}
+
+					if (this.options.textAlign == undefined) {
+						this.options.textAlign = "left";
+					}
+
+					if (this.options.paraIndent == undefined) {
+						this.options.paraIndent = 1;
+					}
+
+					if (this.options.mergeDialogues == undefined) {
+						this.options.mergeDialogues = false;
+					}
 				}
 
 			},
@@ -1053,12 +1246,12 @@
 							},
 							p: {
 								start(node) {
-									if (node.textContent[0]=="—" ||node.textContent[0]=="–") {
+									if (node.textContent[0] == "—" || node.textContent[0] == "–") {
 										return "<p class='mark dialogue'>";
 									} else {
-										return (i==0) ? "<p class='mark'>" : "<p>";
+										return (i == 0) ? "<p class='mark'>" : "<p>";
 									}
-									
+
 								},
 								end: "</p>"
 							},
@@ -1068,11 +1261,11 @@
 									for (let p of node.getElementsByTagName("p")) {
 										let t = "";
 										for (let node of p.childNodes) {
-											if (node.nodeType==1 && node.nodeName != "a") {
-												t+= node.textContent;
+											if (node.nodeType == 1 && node.nodeName != "a") {
+												t += node.textContent;
 											}
 											if (node.nodeType == 3) {
-												t+= node.nodeValue;
+												t += node.nodeValue;
 											}
 										}
 										title.push(t);
@@ -1173,7 +1366,7 @@
 								start(node) {
 									let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 									let text = node.textContent.replace(/[\{\}\[\]\(\)]/gi, '');
-									return href[0]=="#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`
+									return href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`
 								},
 								end: ""
 							},
@@ -1181,7 +1374,7 @@
 								start(node) {
 									let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 									let text = node.textContent.replace(/[\{\}\[\]\(\)]/gi, '');
-									return href[0]=="#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`
+									return href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`
 								},
 								end: ""
 							}
@@ -1328,7 +1521,12 @@
 				pageDblClick(e) {
 					target = e.target;
 
-					if (target.nodeName =="P" && target.classList.contains("mark")) {
+					let selection = window.getSelection();
+					if (selection.isCollapsed==false) {
+						return true;
+					}
+
+					if (target.nodeName == "P" && target.classList.contains("mark")) {
 						let marks = document.querySelectorAll(".page p.mark");
 						let i = Array.prototype.indexOf.call(marks, target);
 						let bookmark = this.bookmarks.find(z => z.number == i);
@@ -1339,7 +1537,8 @@
 						} else {
 							target.classList.add("checked");
 
-							let parent = target.closest("section"), title="";
+							let parent = target.closest("section"),
+								title = "";
 
 							if (parent) {
 								titleP = parent.querySelector(".title p:last-child");
@@ -1352,7 +1551,7 @@
 							});
 						}
 
-						this.bookmarks = this.bookmarks.sort((a,b)=>{
+						this.bookmarks = this.bookmarks.sort((a, b) => {
 							return a.number - b.number;
 						});
 
@@ -1364,9 +1563,32 @@
 					marks[number].scrollIntoView();
 				},
 				loadImage(event) {
-					let width = event.target.naturalWidth, height = event.target.naturalHeight;
-					if (width != undefined && width<300 && height !=undefined && height < 300) {
+					let width = event.target.naturalWidth,
+						height = event.target.naturalHeight;
+					if (width != undefined && width < 300 && height != undefined && height < 300) {
 						event.target.parentNode.classList.add("float");
+					}
+				},
+				close() {
+					if (confirm(this.lang("remove_confirm"))) {
+						localStorage.removeItem("fb2Reader_scroll" + this.book.hash);
+						localStorage.removeItem("fb2Reader_bookmarks" + this.book.hash);
+						let query = SimpleIDB.initialize();
+						query = SimpleIDB.remove("fb2Reader_book");
+						query.then((value) => {
+							this.book = {
+								title: "",
+								author: "",
+								cover: "",
+								main: "",
+								notes: "",
+								hash: "",
+								chapters: [],
+								annotation: ""
+							}
+						}).catch((error) => {
+							alert(error);
+						});
 					}
 				}
 			},
@@ -1380,6 +1602,7 @@
 					}
 				},
 				moreStyles() {
+					let mergeSize = this.options.mergeDialogues ? -this.options.paraIndent : this.options.paraIndent;
 					return `<style>
 						a {
 							color: ${this.options.links}
@@ -1408,6 +1631,19 @@
 
 						figure {
 							background-color: ${this.options.figure};
+						}
+
+						p {
+							text-align: ${this.options.textAlign}
+						}
+
+						.body p {
+							text-indent: ${this.options.textIndent}em;
+							margin: ${this.options.paraIndent}em 0;
+						}
+
+						p.dialogue +p.dialogue {
+							margin-top: ${mergeSize}em;
 						}
 						</style>`;
 				}
