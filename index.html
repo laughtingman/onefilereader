@@ -12,6 +12,7 @@
 	<title>FB2 reader</title>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.min.js' integrity='sha512-deBbW1lpMT6h3gvOzmeMPft4pf9CMGjCKc5jSNq2pMSjtkMPuELbd4N3LKXVq/t1t6qco4q3u/XguyqGqlOMjA==' crossorigin='anonymous'></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js' integrity='sha512-y3o0Z5TJF1UsKjs/jS2CDkeHN538bWsftxO9nctODL5W40nyXIbs0Pgyu7//icrQY9m6475gLaVr39i/uh/nLA==' crossorigin='anonymous'></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<link rel="shortcut icon" href="data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3Csvg version='1.1' id='icon' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 296.999 296.999' style='enable-background:new 0 0 296.999 296.999;' xml:space='preserve'%3E%3Cg%3E%3Cg%3E%3Cg%3E%3Cpath d='M45.432,35.049c-0.008,0-0.017,0-0.025,0c-2.809,0-5.451,1.095-7.446,3.085c-2.017,2.012-3.128,4.691-3.128,7.543 v159.365c0,5.844,4.773,10.61,10.641,10.625c24.738,0.059,66.184,5.215,94.776,35.136V84.023c0-1.981-0.506-3.842-1.461-5.382 C115.322,40.849,70.226,35.107,45.432,35.049z'/%3E%3Cpath d='M262.167,205.042V45.676c0-2.852-1.111-5.531-3.128-7.543c-1.995-1.99-4.639-3.085-7.445-3.085c-0.009,0-0.018,0-0.026,0 c-24.793,0.059-69.889,5.801-93.357,43.593c-0.955,1.54-1.46,3.401-1.46,5.382v166.779 c28.592-29.921,70.038-35.077,94.776-35.136C257.394,215.651,262.167,210.885,262.167,205.042z'/%3E%3Cpath d='M286.373,71.801h-7.706v133.241c0,14.921-12.157,27.088-27.101,27.125c-20.983,0.05-55.581,4.153-80.084,27.344 c42.378-10.376,87.052-3.631,112.512,2.171c3.179,0.724,6.464-0.024,9.011-2.054c2.538-2.025,3.994-5.052,3.994-8.301V82.427 C297,76.568,292.232,71.801,286.373,71.801z'/%3E%3Cpath d='M18.332,205.042V71.801h-7.706C4.768,71.801,0,76.568,0,82.427v168.897c0,3.25,1.456,6.276,3.994,8.301 c2.545,2.029,5.827,2.78,9.011,2.054c25.46-5.803,70.135-12.547,112.511-2.171c-24.502-23.19-59.1-27.292-80.083-27.342 C30.49,232.13,18.332,219.963,18.332,205.042z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A" type="image/svg+xml">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,11 +28,11 @@
 		.panel {
 			position: fixed;
 			top: 0;
-			left: -16rem;
+			left: -18rem;
 			font-family: Verdana, Geneva, Tahoma, sans-serif;
 			background-color: #fafafa;
 			height: 100vh;
-			width: 16rem;
+			width: 18rem;
 			font-size: 1rem;
 			transition-property: left;
 			transition-duration: 0.5s;
@@ -64,11 +65,7 @@
 			display: none;
 		}
 
-		.chapters:empty+.empty {
-			display: block;
-		}
-
-		.bookmarks:empty+.empty {
+		.chapters:empty+.empty, .bookmarks:empty+.empty, .selections:empty+.empty {
 			display: block;
 		}
 
@@ -347,13 +344,15 @@
 		}
 
 		.panel .chapters,
-		.panel .bookmarks {
+		.panel .bookmarks,
+		.panel .selections {
 			padding: 0;
 			margin: 0;
 		}
 
 		.panel .chapter,
-		.panel .bookmark {
+		.panel .bookmark,
+		.panel .selection {
 			list-style: none;
 			display: flex;
 			cursor: pointer;
@@ -380,6 +379,7 @@
 
 		.panel .chapter:hover,
 		.panel .bookmark:hover,
+		.panel .selection:hover,
 		.chapter.active {
 			background-color: rgba(0, 0, 0, .1);
 		}
@@ -483,12 +483,12 @@
 			font-size: 0.75rem;
 		}
 
-		figure.float {
+		picture.float {
 			display: inline-block;
 			margin: 0;
 		}
 
-		figure.float img {
+		picture.float img {
 			display: inline-block;
 			margin: 0;
 		}
@@ -527,6 +527,16 @@
 		.switch label:hover {
 
 			border: 1px solid #333;
+		}
+
+		.remBtn {
+			width: auto !important;
+			margin-right: 0.5rem;
+		}
+
+		.selectBtn {
+			position:absolute;
+			margin-left:0.5rem;
 		}
 	</style>
 </head>
@@ -598,6 +608,9 @@
 			<path d="M2.415 18.51h23.581v2.373h-23.581v-2.373z"></path>
 			<path d="M2.422 25.72h26.93v2.373h-26.93v-2.373z"></path>
 		</symbol>
+		<symbol id="icon-highlight" viewBox="0 0 32 32">
+			<path d="M29.333 26.667l-2.667 2.667h-17.333l2.667-2.667h17.333zM6.573 21.521l3.906 3.906-3.813 1.906-2.667 0.667 0.667-2.667 1.906-3.813zM7.819 14.766l9.44 9.44-0.323 0.332-0.367-0.018-0.385-0.006c-0.655 0-1.383 0.051-2.184 0.153l-0.502 0.070-0.49 0.081-0.469 0.087-0.577 0.119-4.902-4.902c0.097-0.392 0.196-0.878 0.274-1.455 0.158-1.171 0.216-2.356 0.174-3.556l0.207-0.233 0.104-0.111zM21.645 2.81l7.542 7.542-1.127 1.453-2.035 2.594-1.194 1.498-1.063 1.313-0.712 0.863-0.835 0.989-0.541 0.62-0.468 0.516-0.395 0.412-0.937 0.927-1.691 1.716-9.441-9.441 0.16-0.164 2.366-2.352 0.729-0.7 0.811-0.743 0.707-0.625 0.76-0.652 0.812-0.68 0.864-0.707 0.916-0.734 1.473-1.153 1.047-0.803 1.099-0.83 1.152-0.858z"></path>
+			</symbol>
 	</svg>
 
 	<div id="app">
@@ -613,6 +626,9 @@
 						</svg></label>
 					<input type="radio" value="3" v-model.number="options.tab" id="tab3"><label for="tab3"><svg class="icon">
 							<use xlink:href="#icon-bookmark"></use>
+						</svg></label>
+					<input type="radio" value="5" v-model.number="options.tab" id="tab5"><label for="tab5"><svg class="icon">
+							<use xlink:href="#icon-highlight"></use>
 						</svg></label>
 					<input type="radio" value="4" v-model.number="options.tab" id="tab4"><label for="tab4"><svg class="icon">
 							<use xlink:href="#icon-settings"></use>
@@ -658,11 +674,22 @@
 					<div class="scroll">
 						<ul class="bookmarks">
 							<li class="bookmark" v-for="bookmark in bookmarks" @click="goBookmark(bookmark.number)">
+								<button class="remBtn" @click="remBookmark(bookmark)">&times;</button>
 								<span>{{bookmark.title}}</span>
 								<span>&sect;&nbsp;{{bookmark.number}}</span>
 							</li>
 						</ul>
 						<div class="empty">{{lang("nobookmarks")}}</div>
+					</div>
+				</div>
+				<div v-show="options.tab==5" class="tab">
+					<div class="scroll">
+						<ul class="selections">
+							<li class="selection" v-for="selection in selections" @click="goSelection(selection.hash)">
+								<button class="remBtn" @click="remSelection(selection)">&times;</button><span>{{selection.text}}</span>
+							</li>
+						</ul>
+						<div class="empty">{{lang("noselections")}}</div>
 					</div>
 				</div>
 				<div v-show="options.tab==4" class="tab">
@@ -952,6 +979,11 @@
 				"en": "No bookmarks"
 			},
 			{
+				id: "noselections",
+				"ru": "Нет цитат",
+				"en": "No quotes"
+			},
+			{
 				id: "close",
 				"ru": "Очистить",
 				"en": "Clear"
@@ -980,6 +1012,11 @@
 				id: "para_indent",
 				"ru": "Отступ между параграфами",
 				"en": "Vertical indent"
+			},
+			{
+				id: "add_quote",
+				"ru" : "Добавить цитату",
+				"en" : "Add selection as a Quote"
 			}
 
 		];
@@ -1018,7 +1055,8 @@
 				currentChapter: 0,
 				scrollTop: 0,
 				loading: true,
-				bookmarks: []
+				bookmarks: [],
+				selections: []
 			},
 			mounted() {
 
@@ -1030,7 +1068,12 @@
 					this.showNotes = true;
 				});
 
-				document.querySelector(".page").addEventListener("click", this.pageDblClick);
+				const page = document.querySelector(".page");
+				this.mark = new Mark(page);
+
+				page.addEventListener("mouseup", this.mouseUp);
+
+				document.addEventListener("selectionchange", this.changeSelection);
 
 				let query = SimpleIDB.initialize();
 				query.catch((error) => {
@@ -1068,7 +1111,6 @@
 						this.options.mergeDialogues = false;
 					}
 				}
-
 			},
 			updated() {
 				localStorage.setItem("fb2Reader_options", JSON.stringify(this.options));
@@ -1220,7 +1262,7 @@
 					return fullName.join(" ");
 				},
 				parseNode(node, i, deep = -2) {
-					output = "";
+					let output = "";
 
 					if (node.nodeType == 1) {
 
@@ -1359,7 +1401,7 @@
 									if (binary != null) {
 										let type = binary.getAttribute("content-type");
 										let base64 = binary.childNodes[0].nodeValue;
-										return `<figure class="${cls}"><img src="data:${type};base64,${base64}"></figure>`
+										return `<picture class="${cls}"><img src="data:${type};base64,${base64}"/></picture>`
 									} else {
 										return "";
 									}
@@ -1387,14 +1429,16 @@
 						if (tags[node.nodeName] != undefined) {
 
 							output += tags[node.nodeName].start(node);
-							let end = tags[node.nodeName].end;
-
-							if (end != "") {
-								for (let childNode of node.childNodes) {
-									output += this.parseNode(childNode, i, deep + 1);
-								}
-								output += end;
+							
+							for (let childNode of node.childNodes) {
+								output += this.parseNode(childNode, i, deep + 1);
 							}
+
+							let end = tags[node.nodeName].end;
+							output += end;
+
+						} else {
+							console.error(node.nodeName, "not node in parser");
 						}
 
 					} else if (node.nodeType == 3) {
@@ -1411,7 +1455,7 @@
 						}
 						output += text;
 					}
-
+					//console.log(output);
 					return output;
 				},
 				theme(event) {
@@ -1453,6 +1497,12 @@
 									marks[bookmark.number].classList.add("checked");
 								}
 							}, 100);
+						}
+
+						if (localStorage["fb2Reader_selections" + this.book.hash]) {
+							let sl = localStorage.getItem("fb2Reader_selections" + this.book.hash);
+							this.selections = JSON.parse(sl);
+							this.addSelections();
 						}
 					});
 
@@ -1522,50 +1572,50 @@
 
 					this.currentChapter = number;
 				},
-				pageDblClick(e) {
-					target = e.target;
-
-					let selection = window.getSelection();
-					if (selection.isCollapsed==false) {
-						return true;
-					}
-
-					if (target.nodeName == "P" && target.classList.contains("mark")) {
-						let marks = document.querySelectorAll(".page p.mark");
-						let i = Array.prototype.indexOf.call(marks, target);
-						let bookmark = this.bookmarks.find(z => z.number == i);
-
-						if (bookmark) {
-							target.classList.remove("checked");
-							this.bookmarks = this.bookmarks.filter(z => z.number != i);
-						} else {
-							target.classList.add("checked");
-
-							let parent = target.closest("section"),
-								title = "";
-
-							if (parent) {
-								titleP = parent.querySelector(".title p:last-child");
-								if (titleP) title = titleP.innerText;
-							}
-
-							this.bookmarks.push({
-								number: i,
-								title: title
-							});
-						}
-
-						this.bookmarks = this.bookmarks.sort((a, b) => {
-							return a.number - b.number;
-						});
-
-						localStorage.setItem("fb2Reader_bookmarks" + this.book.hash, JSON.stringify(this.bookmarks));
-					}
-				},
 				goBookmark(number) {
 					let marks = document.querySelectorAll(".page p.mark");
 					marks[number].scrollIntoView();
 				},
+
+				goSelection(hashCode) {
+					let mark = document.querySelector("." + hashCode);
+					if (mark) mark.scrollIntoView();
+				},
+
+				remBookmark(bookmark) {
+					let marks = document.querySelectorAll(".page p.mark");
+					marks[bookmark.number].classList.remove("checked");
+					this.bookmarks = this.bookmarks.filter(z=>z != bookmark);
+					localStorage.setItem("fb2Reader_bookmarks" + this.book.hash, JSON.stringify(this.bookmarks));
+				},
+
+				remSelection(selection) {
+					event.stopPropagation();
+					this.selections = this.selections.filter(z=>z != selection);
+					localStorage.setItem("fb2Reader_selections" + this.book.hash, JSON.stringify(this.selections));
+
+					if (this.selections.length > 0) {
+						this.mark.unmark({
+							done: () => {
+								this.addSelections();
+							}
+						});
+					} else {
+						this.mark.unmark();
+					}
+				},
+
+				addSelections() {
+					for (let selection of this.selections) {
+						this.mark.mark(selection.text, {
+							caseSensitive: true,
+							acrossElements: true,
+							separateWordSearch: false,
+							className: selection.hash
+						});
+					}
+				},
+
 				close() {
 					if (confirm(this.lang("remove_confirm"))) {
 						localStorage.removeItem("fb2Reader_scroll" + this.book.hash);
@@ -1587,6 +1637,101 @@
 							alert(error);
 						});
 					}
+				},
+				
+				changeSelection() {
+
+					let btns = document.querySelectorAll(".selectBtn");
+					for (let btn of btns) {
+						btn.remove();
+					}
+
+					let selection = window.getSelection();
+					if (selection == null || selection.type != "Range") return;
+
+					let text = selection.toString();
+					text = text.replace(/(\r\n|\n|\r)/gm, "");
+
+					if (text.length<3) return;
+
+					if (selection.focusNode == null) return;
+
+					
+					if (selection.focusNode == null) return;
+
+					let p = null;
+					if (selection.focusNode.nodeType == 3) {
+						p = selection.focusNode.parentNode.closest("p.mark");
+					} else {
+						p = selection.focusNode.closest("p.mark");
+					}
+					
+					if (p == null) return;
+
+					let btn = document.createElement("button");
+					btn.innerHTML = '<svg class="icon"><use xlink:href="#icon-highlight"></use></svg>';
+					btn.classList.add("selectBtn");
+					btn.setAttribute("title", this.lang("add_quote"));
+					btn.addEventListener("click", () => {
+						this.selections.push({
+							hash: this.hash(text),
+							text: text
+						});
+						this.addSelections();
+						localStorage.setItem("fb2Reader_selections" + this.book.hash, JSON.stringify(this.selections));
+						window.getSelection().removeAllRanges();
+						btn.remove();
+					});
+					p.appendChild(btn);
+
+				},
+
+				mouseUp(event) {
+					let selection = window.getSelection();
+					if (selection == null || selection.type != "Range") {
+						let target = event.target;
+						if (target.nodeName == "P" && target.classList.contains("mark")) {
+							let marks = document.querySelectorAll(".page p.mark");
+							let i = Array.prototype.indexOf.call(marks, target);
+							let bookmark = this.bookmarks.find(z => z.number == i);
+
+							if (bookmark) {
+								target.classList.remove("checked");
+								this.bookmarks = this.bookmarks.filter(z => z.number != i);
+							} else {
+								target.classList.add("checked");
+
+								let parent = target.closest("section"),
+									title = "";
+
+								if (parent) {
+									titleP = parent.querySelector(".title p:last-child");
+									if (titleP) title = titleP.innerText;
+								}
+
+								this.bookmarks.push({
+									number: i,
+									title: title
+								});
+							}
+
+							this.bookmarks = this.bookmarks.sort((a, b) => {
+								return a.number - b.number;
+							});
+
+							localStorage.setItem("fb2Reader_bookmarks" + this.book.hash, JSON.stringify(this.bookmarks));
+						}
+					}
+				},
+
+				hash(text) {
+					let hash = 0;
+					for (let i = 0, len = text.length; i < len; i++) {
+						let chr = text.charCodeAt(i);
+						hash = (hash << 5) - hash + chr;
+						hash |= 0;
+					}
+					return "m" + hash;
 				}
 			},
 			computed: {
@@ -1626,7 +1771,7 @@
 							background-color: ${this.options.background};
 						}
 
-						figure {
+						picture {
 							background-color: ${this.options.figure};
 						}
 
@@ -1641,6 +1786,11 @@
 
 						p.dialogue +p.dialogue {
 							margin-top: ${mergeSize}em;
+						}
+
+						mark {
+							color: ${this.options.background};
+							background-color: ${this.options.color};
 						}
 						</style>`;
 				}
