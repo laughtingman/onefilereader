@@ -1498,7 +1498,7 @@
 									start(node) {
 										let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 										let text = node.textContent.replace(/[\{\}\[\]\(\)]/gi, "");
-										return href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`;
+										return href != null && href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`;
 									},
 									end: "",
 								},
@@ -1506,7 +1506,7 @@
 									start(node) {
 										let href = node.getAttribute("l:href") || node.getAttribute("xlink:href");
 										let text = node.textContent.replace(/[\{\}\[\]\(\)]/gi, "");
-										return href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`;
+										return href != null && href[0] == "#" ? `<sup><a href='${href}'>${text}</a></sup>` : `<a href='${href}'>${text}</a>`;
 									},
 									end: "",
 								},
