@@ -11,8 +11,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>FB2 reader</title>
 
-		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eee" />
-		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#222" />
+		<meta name="theme-color" content="#eee" />
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.min.js" integrity="sha512-deBbW1lpMT6h3gvOzmeMPft4pf9CMGjCKc5jSNq2pMSjtkMPuELbd4N3LKXVq/t1t6qco4q3u/XguyqGqlOMjA==" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js" integrity="sha512-y3o0Z5TJF1UsKjs/jS2CDkeHN538bWsftxO9nctODL5W40nyXIbs0Pgyu7//icrQY9m6475gLaVr39i/uh/nLA==" crossorigin="anonymous"></script>
@@ -740,7 +739,7 @@
 					<div v-show="options.tab==4" class="tab">
 						<div class="scroll">
 							<div class="group">
-								<label for="dark_theme"><input type="checkbox" id="dark_theme" v-model="options.dark" />{{lang("dark_theme")}}</label>
+								<label for="dark_theme"><input type="checkbox" id="dark_theme" v-model="options.dark" @change="changeTheme" />{{lang("dark_theme")}}</label>
 								<label :title="lang('theme')"
 									><svg class="icon">
 										<use xlink:href="#icon-palette"></use>
@@ -1200,6 +1199,8 @@
 						if (this.options.lineIndent == undefined) {
 							this.options.lineIndent = 1.5;
 						}
+
+						this.changeTheme();
 					}
 				},
 				updated() {
@@ -1810,6 +1811,13 @@
 							hash |= 0;
 						}
 						return "m" + hash;
+					},
+					changeTheme() {
+						if (this.options.dark) {
+							document.querySelector('meta[name="theme-color"]').setAttribute("content", "#222");
+						} else {
+							document.querySelector('meta[name="theme-color"]').setAttribute("content", "#eee");
+						}
 					},
 				},
 				computed: {
