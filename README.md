@@ -1,9 +1,11 @@
 # onefilereader
+
 Extreamly light FB2 reader in one html file
 
 [Demo here](https://laughtingman.github.io/onefilereader/index.html)
 
 ## Features
+
 1. Open `.fb2` and `.fb2.zip` files
 1. Detect correct encoding
 1. Show book info: cover, annotation, author, etc.
@@ -16,8 +18,12 @@ Extreamly light FB2 reader in one html file
 1. Automatic add non-breaking spaces for more comfortable
 1. Show active table of contents with highlighting of the current chapter
 1. Add bookmarks to any paragraph
-
+1. Highlight and store quotes in the text
+1. Bionic fonts (new)
 
 ## Dependencies
+
 1. [Vue.js](https://github.com/vuejs/vue) 2.6.9
-1. [jsZip](https://github.com/Stuk/jszip) 3.5.2
+2. [jsZip](https://github.com/Stuk/jszip) 3.5.2
+3. [Mark.js](https://github.com/julkue/mark.js) 8.11.1
+4. [FastFont](https://github.com/Born2Root/Fast-Font)
