@@ -1217,9 +1217,9 @@
 				},
 				methods: {
 					open() {
-						function error() {
+						let error = () => {
 							alert(this.lang("not_supported"));
-						}
+						};
 						let that = this;
 						let div = document.createElement("div");
 						div.innerHTML = '<input type="file" accept=".fb2,.fb2.zip">';
@@ -1269,8 +1269,9 @@
 								xml = parser.parseFromString(text, "text/xml");
 							}
 							this.loading = false;
-						} catch {
+						} catch (err) {
 							alert(this.lang("broken_book"));
+							console.error(err);
 							this.loading = false;
 							return;
 						}
@@ -1280,74 +1281,80 @@
 							return;
 						}
 
-						this.xml = xml;
+						try {
+							this.xml = xml;
 
-						let title = this.nodeText(xml.getElementsByTagName("book-title")[0]);
+							let title = this.nodeText(xml.getElementsByTagName("book-title")[0]);
 
-						this.book.title = title;
-						this.book.hash = this.hashCode(title);
+							this.book.title = title;
+							this.book.hash = this.hashCode(title);
 
-						let author = xml.getElementsByTagName("author")[0];
-						if (author != null) {
-							this.book.author = this.getFullNane(author);
-						}
+							let author = xml.getElementsByTagName("author")[0];
+							if (author != null) {
+								this.book.author = this.getFullNane(author);
+							}
 
-						this.book.cover = "";
+							this.book.cover = "";
 
-						let coverpage = xml.getElementsByTagName("coverpage")[0];
-						if (coverpage != null) {
-							let cover = coverpage.getElementsByTagName("image")[0];
-							if (cover != null) {
-								let id = cover.getAttribute("l:href") || cover.getAttribute("xlink:href");
-								id = id.replace(/#/g, "");
-								let binary = xml.getElementById(id);
-								if (binary != null) {
-									let type = binary.getAttribute("content-type");
-									let base64 = binary.childNodes[0].nodeValue;
-									this.book.cover = `data:${type};base64, ${base64}`;
+							let coverpage = xml.getElementsByTagName("coverpage")[0];
+							if (coverpage != null) {
+								let cover = coverpage.getElementsByTagName("image")[0];
+								if (cover != null) {
+									let id = cover.getAttribute("l:href") || cover.getAttribute("xlink:href");
+									id = id.replace(/#/g, "");
+									let binary = xml.getElementById(id);
+									if (binary != null) {
+										let type = binary.getAttribute("content-type");
+										let base64 = binary.childNodes[0].nodeValue;
+										this.book.cover = `data:${type};base64, ${base64}`;
+									}
 								}
 							}
-						}
 
-						this.book.annotation = "";
-						this.book.sequence = "";
+							this.book.annotation = "";
+							this.book.sequence = "";
 
-						let annotation = xml.getElementsByTagName("annotation")[0];
+							let annotation = xml.getElementsByTagName("annotation")[0];
 
-						if (annotation != null) {
-							this.book.annotation = this.parseNode(annotation, 1);
-						}
-
-						let sequence = xml.getElementsByTagName("sequence")[0];
-
-						if (sequence != null) {
-							let sequenceText = sequence.getAttribute("name");
-							if (sequence.getAttribute("number") != undefined) {
-								sequenceText += " №" + sequence.getAttribute("number");
+							if (annotation != null) {
+								this.book.annotation = this.parseNode(annotation, 1);
 							}
-							this.book.sequence = sequenceText;
-						}
 
-						let bodys = xml.getElementsByTagName("body");
+							let sequence = xml.getElementsByTagName("sequence")[0];
 
-						this.book.main = "";
-						this.book.notes = "";
-						this.book.chapters = [];
-
-						for (let i = 0; i < bodys.length; i++) {
-							if (i == 0) {
-								this.book.main = this.parseNode(bodys[i], i);
-							} else {
-								this.book.notes += this.parseNode(bodys[i], i);
+							if (sequence != null) {
+								let sequenceText = sequence.getAttribute("name");
+								if (sequence.getAttribute("number") != undefined) {
+									sequenceText += " №" + sequence.getAttribute("number");
+								}
+								this.book.sequence = sequenceText;
 							}
+
+							let bodys = xml.getElementsByTagName("body");
+
+							this.book.main = "";
+							this.book.notes = "";
+							this.book.chapters = [];
+
+							for (let i = 0; i < bodys.length; i++) {
+								if (i == 0) {
+									this.book.main = this.parseNode(bodys[i], i);
+								} else {
+									this.book.notes += this.parseNode(bodys[i], i);
+								}
+							}
+
+							let query = SimpleIDB.set("fb2Reader_book", JSON.stringify(this.book));
+							query.catch((error) => {
+								alert(error);
+							});
+
+							this.restoreProgress();
+						} catch (err) {
+							alert(this.lang("broken_book"));
+							console.error(err);
+							this.loading = false;
 						}
-
-						let query = SimpleIDB.set("fb2Reader_book", JSON.stringify(this.book));
-						query.catch((error) => {
-							alert(error);
-						});
-
-						this.restoreProgress();
 					},
 					getFullNane(node) {
 						let fullName = [];
