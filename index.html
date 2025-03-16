@@ -729,6 +729,10 @@
 						</div>
 					</div>
 					<div v-show="options.tab==5" class="tab">
+						<div class="group btn-group" v-if="selections.length>0">
+							<button @click="saveQuotes('md')">{{lang("export")}} .md</button>
+							<button @click="saveQuotes('txt')">{{lang("export")}} .txt</button>
+						</div>
 						<div class="scroll">
 							<ul class="selections">
 								<li class="selection" v-for="selection in selections" @click="goSelection(selection.hash)"><button class="remBtn" @click="remSelection(selection)">&times;</button><span>{{selection.text}}</span></li>
@@ -1099,6 +1103,11 @@
 					id: "dark_theme",
 					ru: "Темная тема",
 					en: "Dark theme",
+				},
+				{
+					id: "export",
+					ru: "Экспорт",
+					en: "Export",
 				},
 			];
 
@@ -1801,6 +1810,19 @@
 								localStorage.setItem("fb2Reader_bookmarks" + this.book.hash, JSON.stringify(this.bookmarks));
 							}
 						}
+					},
+
+					saveQuotes(format) {
+						let a = document.createElement("a");
+						let content = this.selections.map((z) => z.text).join("\n\n");
+						let fileName = this.book.title + "." + format;
+						let file = new Blob([content], {
+							type: "text/plain",
+						});
+						a.href = URL.createObjectURL(file);
+						a.download = fileName;
+						a.click();
+						a.remove();
 					},
 
 					hash(text) {
